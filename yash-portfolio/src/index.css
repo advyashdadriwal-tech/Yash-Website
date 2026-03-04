@@ -1,0 +1,159 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------------------------------------------------------
+  ADVOCATE YASH DADRIWAL - PREMIUM GLOBAL STYLES
+  ---------------------------------------------------------
+*/
+
+:root {
+  --legal-blue-dark: #020617;
+  --legal-blue-accent: #2563eb;
+  --legal-slate-soft: #f8fafc;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--legal-slate-soft);
+    color: #0f172a;
+    overflow-x: hidden;
+  }
+}
+
+/* ---------- CUSTOM SCROLLBAR ---------- */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ---------- TYPOGRAPHY ---------- */
+
+.font-serif {
+  font-family: 'Playfair Display', serif;
+}
+
+/* ---------- ANIMATIONS ---------- */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+  100% { transform: translateY(0px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-float {
+  animation: float 8s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse-glow 10s ease-in-out infinite;
+}
+
+/* ---------- COMPONENT CLASSES ---------- */
+
+@layer components {
+  .nav-link {
+    @apply relative py-1 transition-all duration-300;
+  }
+
+  .nav-link::after {
+    content: '';
+    @apply absolute bottom-0 left-0 w-0 h-[1.5px] bg-blue-600 transition-all duration-300;
+  }
+
+  .nav-link:hover::after {
+    @apply w-full;
+  }
+
+  .card-premium {
+    @apply bg-white rounded-[2.5rem] p-10 border border-slate-100 shadow-sm transition-all duration-500;
+  }
+
+  .card-premium:hover {
+    @apply shadow-2xl -translate-y-3 border-blue-100;
+  }
+
+  .btn-luxury {
+    @apply relative overflow-hidden transition-all duration-300 active:scale-95;
+  }
+
+  .btn-luxury::before {
+    content: '';
+    @apply absolute top-0 left-[-100%] w-full h-full bg-white/10 skew-x-[-25deg] transition-all duration-500;
+  }
+
+  .btn-luxury:hover::before {
+    @apply left-[100%];
+  }
+
+  .input-field {
+    @apply w-full px-6 py-5 rounded-2xl border border-slate-200 bg-slate-50/50 outline-none transition-all duration-300;
+  }
+
+  .input-field:focus {
+    @apply border-blue-500 bg-white ring-[6px] ring-blue-50;
+  }
+}
+
+/* ---------- GLASSMORPHISM ---------- */
+
+.glass-portal {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ---------- HERO SPECIFIC ---------- */
+
+.hero-gradient {
+  background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.1), transparent 40%),
+              radial-gradient(circle at bottom right, rgba(79, 70, 229, 0.1), transparent 40%);
+}
