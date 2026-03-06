@@ -24,15 +24,18 @@ import {
   Loader2,
   ExternalLink,
   MessageSquare,
-  FileText
+  FileText,
+  X
 } from "lucide-react";
 
 /**
- * NOTE FOR LOCAL DEVELOPMENT:
- * Since the preview environment cannot resolve external local files, 
- * I have moved the Supabase initialization logic inside this file.
- * Ensure your .env.local is inside the /yash-portfolio folder.
+ * 🛠️ LOCAL PHOTO SETUP:
+ * 1. Ensure your photo is saved as 'photo.jpg' in 'yash-portfolio/src/assets/'
+ * 2. Uncomment the import line below:
+ * // import profilePhoto from './assets/photo.jpg';
+ * 3. Replace the placeholder constant 'PROFILE_IMAGE_URL' with 'profilePhoto' inside the <img> tags.
  */
+const PROFILE_IMAGE_URL = "src/assets/photo.jpg"; // Replace with imported photo variable if using local import
 
 const App = () => {
   const [supabaseClient, setSupabaseClient] = useState(null);
@@ -40,6 +43,10 @@ const App = () => {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
   const [initStatus, setInitStatus] = useState("initializing");
+  
+  // Disclaimer State - Set to true by default for BCI compliance
+  const [showDisclaimer, setShowDisclaimer] = useState(true);
+  const [disclaimerCheckbox, setDisclaimerCheckbox] = useState(false);
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -49,22 +56,19 @@ const App = () => {
     query: "",
   });
 
-  // Resilient initialization logic for Supabase in a single file
+  // Resilient Supabase Initialization
   useEffect(() => {
     let isMounted = true;
-
     const loadSupabase = () => {
-      // 1. Get keys from Vite environment
       let url = "";
       let key = "";
       try {
         url = import.meta.env.VITE_SUPABASE_URL || "";
         key = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
       } catch (e) {
-        console.warn("Environment meta not accessible.");
+        console.warn("Vite environment meta not accessible.");
       }
 
-      // 2. Load Supabase via CDN for compatibility with Canvas preview
       if (!window.supabase) {
         const script = document.createElement("script");
         script.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js";
@@ -109,7 +113,7 @@ const App = () => {
 
     if (!supabaseClient) {
       if (initStatus === "missing_keys") {
-        setError("Setup Required: Please ensure your .env.local file is inside the 'yash-portfolio' folder and restart your terminal.");
+        setError("Setup Required: Please ensure your .env.local file is inside the 'yash-portfolio' folder.");
       } else {
         setError("Database connection is initializing. Please try again in a few seconds.");
       }
@@ -134,15 +138,73 @@ const App = () => {
       
     } catch (err) {
       console.error("Submission error:", err);
-      setError(`Storage Error: ${err.message || "Failed to reach database. Check table 'inquiries' and RLS policies."}`);
+      setError(`Storage Error: ${err.message || "Failed to reach database."}`);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#fcfcfd] text-slate-900 scroll-smooth font-sans selection:bg-blue-100 selection:text-blue-900">
+    <div className="relative min-h-screen bg-[#fcfcfd] text-slate-900 scroll-smooth font-sans selection:bg-blue-100 selection:text-blue-900 overflow-x-hidden">
       
+      {/* LEGAL DISCLAIMER MODAL */}
+      {showDisclaimer && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6">
+          <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-md" />
+          <div className="relative bg-white w-full max-w-3xl rounded-[2rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300 border border-slate-200">
+            <div className="p-8 md:p-12">
+              <div className="flex items-center gap-3 text-blue-950 mb-6">
+                <div className="bg-slate-50 p-2 rounded-lg border border-slate-200">
+                  <Shield size={24} className="text-blue-600" />
+                </div>
+                <h2 className="text-3xl font-serif font-bold text-slate-900">Disclaimer</h2>
+              </div>
+              
+              <div className="space-y-4 text-sm text-slate-600 leading-relaxed max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
+                <p>
+                  The Bar Council of India does not permit advertisement or solicitation by advocates in any form or manner. 
+                  By accessing this website, you acknowledge and confirm that you are seeking information relating to 
+                  <strong> Yash Dadriwal</strong> of your own accord and that there has been no form of solicitation, 
+                  advertisement or inducement by Yash Dadriwal or his office.
+                </p>
+                <p>
+                  The content of this website is for informational purposes only and should not be interpreted as soliciting 
+                  or advertisement. No material or information provided on this website should be construed as legal advice. 
+                  Yash Dadriwal shall not be liable for consequences of any action taken by relying on the material or 
+                  information provided on this website.
+                </p>
+                <p>
+                  The contents of this website are the intellectual property of Yash Dadriwal.
+                </p>
+              </div>
+
+              <div className="mt-10 space-y-6">
+                <label className="flex items-start gap-3 cursor-pointer group">
+                  <div className="relative flex items-center mt-1">
+                    <input 
+                      type="checkbox" 
+                      className="peer h-5 w-5 cursor-pointer appearance-none rounded border border-slate-300 bg-slate-50 transition-all checked:border-blue-600 checked:bg-blue-600"
+                      checked={disclaimerCheckbox}
+                      onChange={(e) => setDisclaimerCheckbox(e.target.checked)}
+                    />
+                    <Check className="absolute h-3.5 w-3.5 text-white opacity-0 peer-checked:opacity-100 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-opacity pointer-events-none" strokeWidth={4} />
+                  </div>
+                  <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors">I accept the terms stated above.</span>
+                </label>
+
+                <button 
+                  onClick={() => setShowDisclaimer(false)}
+                  disabled={!disclaimerCheckbox}
+                  className="w-full md:w-auto px-10 py-4 bg-[#0f172a] text-white rounded-xl font-bold uppercase tracking-widest text-xs disabled:opacity-30 disabled:cursor-not-allowed hover:bg-blue-900 transition-all shadow-xl active:scale-95"
+                >
+                  Proceed to Website
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* NAVIGATION */}
       <nav className="fixed top-0 w-full bg-white/70 backdrop-blur-xl border-b border-slate-200 z-50 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
@@ -176,7 +238,7 @@ const App = () => {
               <Sparkles size={12} className="animate-pulse"/> NLU Alumnus • Strategic Litigation
             </div>
 
-            <h1 className="text-6xl md:text-[5.5rem] font-serif font-medium leading-[1] tracking-tight text-white">
+            <h1 className="text-6xl md:text-[5.5rem] font-serif font-medium leading-[1] tracking-tight text-white text-balance">
               Precision <br />
               <span className="text-blue-500 font-bold not-italic">In Legal Strategy.</span>
             </h1>
@@ -196,19 +258,22 @@ const App = () => {
           </div>
 
           <div className="hidden md:flex justify-end animate-in fade-in zoom-in duration-1000">
-            <div className="bg-gradient-to-br from-slate-800/50 to-slate-950 p-12 rounded-[3.5rem] shadow-2xl border border-white/5 text-center relative max-w-md backdrop-blur-md">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-600 p-5 rounded-[1.5rem] shadow-xl">
-                <ScaleIcon size={44} className="text-white"/>
-              </div>
-              <Quote size={50} className="text-blue-500/10 absolute bottom-10 right-10" />
-              <p className="italic text-3xl font-bold text-slate-100 leading-tight pt-6">
-                "Integrity is the cornerstone of Justice."
-              </p>
-              <div className="mt-12">
-                <p className="text-blue-400 text-sm font-black uppercase tracking-[0.4em]">Adv. Yash Dadriwal</p>
-                <p className="text-slate-500 text-[15px] mt-3 font-bold leading-relaxed uppercase tracking-widest">
-                  B.A.LL.B (Hons.), LL.M.<br/> UGC-NET(LAW)
-                </p>
+            <div className="relative group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-[3.5rem] blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+              <div className="relative bg-slate-900 rounded-[3.5rem] overflow-hidden border border-white/10 shadow-2xl w-full max-w-[420px]">
+                <img 
+                  src={PROFILE_IMAGE_URL} 
+                  alt="Adv. Yash Dadriwal" 
+                  className="w-full h-[550px] object-cover object-top filter brightness-95 contrast-105 group-hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute bottom-0 left-0 right-0 p-10 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent">
+                  <Quote size={32} className="text-blue-500/40 mb-4" />
+                  <p className="italic text-2xl text-white font-serif mb-4 leading-tight">"Integrity is the cornerstone of Justice."</p>
+                  <div className="flex items-center gap-3">
+                    <div className="h-px w-10 bg-blue-500"></div>
+                    <p className="text-blue-400 text-[10px] font-black uppercase tracking-[0.4em]">Adv. Yash Dadriwal</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -219,18 +284,26 @@ const App = () => {
       <section id="about" className="py-32 bg-white relative overflow-hidden border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           <div className="grid md:grid-cols-12 gap-16 items-start">
-            <div className="md:col-span-4 space-y-8">
+            <div className="md:col-span-4 space-y-10">
+              <div className="relative w-40 h-40 rounded-[2rem] overflow-hidden border-4 border-slate-50 shadow-2xl mx-auto md:mx-0 group">
+                 <img 
+                    src={PROFILE_IMAGE_URL} 
+                    alt="Profile Thumbnail" 
+                    className="w-full h-full object-cover transition-transform group-hover:scale-110"
+                 />
+              </div>
+
               <div className="space-y-4">
                 <h2 className="text-4xl font-serif font-bold text-slate-900 tracking-tight">About the <br />Advocate</h2>
-                <div className="h-1 w-20 bg-blue-600 rounded-full"></div>
+                <div className="h-1 w-20 bg-blue-600 rounded-full shadow-sm"></div>
               </div>
               
               <div className="space-y-4">
                 {[
                   { icon: Award, label: "Enrollment", val: "Maharashtra & Goa Bar (2023)" },
-                  { icon: BookOpen, label: "Qualifications", val: "B.A.LL.B (Hons),LL.M.(Corporate & Commercial Law)" },
-                  { icon: BookOpen, label: "Credentials", val: "UGC-NET (Law)" },
-                  { icon: MapPin, label: "Jurisdictions", val: "Delhi & Mumbai" }
+                  { icon: BookOpen, label: "Qualifications", val: "B.A.LL.B (Hons), LL.M." },
+                  { icon: BookOpen, label: "Credentials", val: "UGC-NET (Law) Qualified" },
+                  { icon: MapPin, label: "Jurisdictions", val: "Delhi & Mumbai Practice" }
                 ].map((item, idx) => (
                   <div key={idx} className="flex items-start gap-4 p-5 bg-slate-50 rounded-3xl border border-slate-100 group hover:border-blue-200 transition-all">
                     <div className="bg-white p-2.5 rounded-xl text-blue-600 shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-all">
@@ -256,15 +329,15 @@ const App = () => {
                 </p>
 
                 <div className="grid md:grid-cols-2 gap-8 my-8">
-                  <div className="p-8 bg-blue-50/50 rounded-[2.5rem] border border-blue-100 space-y-4">
+                  <div className="p-8 bg-blue-50/50 rounded-[2.5rem] border border-blue-100 space-y-4 group hover:bg-white hover:shadow-xl transition-all duration-500">
                     <div className="flex items-center gap-2 text-blue-800 font-bold uppercase text-[10px] tracking-widest">
                       <History size={16} /> Notable Successes
                     </div>
                     <p className="text-sm text-slate-600 leading-relaxed">
-                      Successfully argued and secured a favourable order in a <span className="font-semibold text-blue-950">writ petition challenging a CLAT-UG question</span> before the Hon'ble Chief Justice of the Delhi High Court.
+                      Successfully argued and secured a favourable order in a <span className="font-semibold text-blue-950">writ petition challenging an incorrect CLAT-UG question</span> before the Hon'ble Chief Justice of the Delhi High Court.
                     </p>
                   </div>
-                  <div className="p-8 bg-slate-900 rounded-[2.5rem] text-white space-y-4 shadow-2xl">
+                  <div className="p-8 bg-slate-900 rounded-[2.5rem] text-white space-y-4 shadow-2xl group hover:-translate-y-1 transition-transform duration-500">
                     <div className="flex items-center gap-2 text-blue-400 font-bold uppercase text-[10px] tracking-widest">
                       <Shield size={16} /> Complex Matters
                     </div>
@@ -278,9 +351,11 @@ const App = () => {
                   His exposure extends to <span className="font-medium text-slate-900">high-stakes commercial disputes</span> and arbitration. He has assisted in construction arbitrations concerning breach of contract and project abandonment, as well as multi-jurisdictional defaults under collateral management arrangements.
                 </p>
 
-                <p className="text-slate-600 leading-relaxed pt-4 border-t border-slate-100 mt-8 font-serif italic text-lg">
-                  "Defining the path to justice through meticulous drafting, thorough research, and effective oral advocacy."
-                </p>
+                <div className="pt-8 border-t border-slate-100 mt-8">
+                   <p className="font-serif italic text-xl text-blue-900">
+                      "Defining the path to justice through meticulous drafting, thorough research, and effective oral advocacy."
+                   </p>
+                </div>
               </div>
             </div>
           </div>
@@ -290,7 +365,10 @@ const App = () => {
       {/* EXPERTISE SECTION */}
       <section id="expertise" className="py-32 bg-slate-50 relative">
         <div className="max-w-7xl mx-auto px-6 text-center">
-          <h2 className="text-5xl font-serif font-bold text-slate-900 mb-20">Practice Specializations</h2>
+          <div className="mb-20">
+            <h2 className="text-5xl font-serif font-bold text-slate-900">Practice Specializations</h2>
+            <p className="text-blue-600 mt-4 uppercase tracking-[0.3em] text-[10px] font-black">Strategic Advisory & Advocacy</p>
+          </div>
           <div className="grid md:grid-cols-3 gap-12 text-left">
             {[
               { 
@@ -316,7 +394,7 @@ const App = () => {
                 <h3 className="text-2xl font-bold mb-6 text-slate-900">{item.title}</h3>
                 <ul className="space-y-3">
                    {item.list.map((li, idx) => (
-                     <li key={idx} className="flex items-center gap-2 text-sm text-slate-500">
+                     <li key={idx} className="flex items-center gap-2 text-sm text-slate-500 font-medium">
                         <Check size={14} className="text-blue-600" /> {li}
                      </li>
                    ))}
@@ -383,12 +461,12 @@ const App = () => {
               <div className="md:col-span-2 space-y-10">
                 <h2 className="text-5xl font-serif font-bold text-slate-900 leading-tight">Begin Your <br />Consultation</h2>
                 <p className="text-slate-500 leading-relaxed text-lg font-light">
-                  Submit your details securely. Advocate Dadriwal's office will review your case and respond within 24 business hours.
+                  Submit your details securely. Our office will review your case and respond within 24 business hours.
                 </p>
                 
                 <div className="space-y-6 pt-6">
                   <div className="flex items-center gap-5 group cursor-pointer" onClick={() => window.location.href='mailto:advyashdadriwal@gmail.com'}>
-                    <div className="bg-blue-50 p-4 rounded-2xl text-blue-950 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                    <div className="bg-blue-50 p-4 rounded-2xl text-blue-950 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm">
                       <Mail size={22}/>
                     </div>
                     <div>
@@ -397,7 +475,7 @@ const App = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-5 group cursor-pointer" onClick={() => window.open('https://www.linkedin.com/in/yash-dadriwal-8a30161b2/', '_blank')}>
-                    <div className="bg-blue-50 p-4 rounded-2xl text-blue-950 group-hover:bg-[#0077b5] group-hover:text-white transition-all">
+                    <div className="bg-blue-50 p-4 rounded-2xl text-blue-950 group-hover:bg-[#0077b5] group-hover:text-white transition-all shadow-sm">
                       <Linkedin size={22}/>
                     </div>
                     <div>
@@ -416,10 +494,10 @@ const App = () => {
                         <CheckCircle size={56} className="text-green-600"/>
                       </div>
                       <h3 className="text-3xl font-serif font-bold text-slate-900">Request Received</h3>
-                      <p className="text-slate-500 mt-5 max-w-xs mx-auto font-medium">
+                      <p className="text-slate-500 mt-5 max-w-xs mx-auto font-medium text-sm">
                         Your inquiry has been stored in our Supabase database. We will be in touch shortly.
                       </p>
-                      <button onClick={() => setSubmitted(false)} className="mt-8 text-blue-600 font-bold hover:underline text-sm">Send another request</button>
+                      <button onClick={() => setSubmitted(false)} className="mt-8 text-blue-600 font-bold hover:underline text-sm tracking-wide">Send another request</button>
                     </div>
                   ) : (
                     <form onSubmit={handleSubmit} className="space-y-6">
@@ -498,8 +576,8 @@ const App = () => {
                           </>
                         )}
                       </button>
-                      <p className="text-[9px] text-center text-slate-400 font-bold uppercase tracking-widest pt-2">
-                        <Shield size={12} className="inline mr-1 text-blue-900" /> Secure Supabase Encryption active
+                      <p className="text-[9px] text-center text-slate-400 font-bold uppercase tracking-widest pt-2 flex items-center justify-center gap-1">
+                        <Shield size={12} className="text-blue-900" /> Secure Legal Cloud Storage Active
                       </p>
                     </form>
                   )}
@@ -513,7 +591,7 @@ const App = () => {
       {/* FLOATING ACTION BUTTON */}
       <a
         href="#contact"
-        className="fixed bottom-8 right-8 z-40 bg-blue-600 text-white px-8 py-4 rounded-full shadow-[0_20px_50px_rgba(37,99,235,0.4)] hover:bg-blue-700 hover:scale-110 transition-all flex gap-3 items-center font-bold text-sm active:scale-95"
+        className="fixed bottom-8 right-8 z-40 bg-blue-600 text-white px-8 py-5 rounded-full shadow-[0_20px_50px_rgba(37,99,235,0.4)] hover:bg-blue-700 hover:scale-110 transition-all flex gap-3 items-center font-bold text-sm active:scale-95"
       >
         <Phone size={20}/> Consult Now
       </a>
@@ -542,9 +620,9 @@ const App = () => {
                 © {new Date().getFullYear()} Yash Dadriwal. All rights reserved.
              </p>
              <div className="flex gap-8 text-[10px] text-slate-400 font-bold uppercase tracking-tighter">
-                <a href="#" className="hover:text-blue-600">Privacy Policy</a>
-                <a href="#" className="hover:text-blue-600">Legal Notice</a>
-                <a href="#" className="hover:text-blue-600">Site Map</a>
+                <a href="#" className="hover:text-blue-600 transition-colors">Privacy Policy</a>
+                <a href="#" className="hover:text-blue-600 transition-colors">Legal Notice</a>
+                <a href="#" className="hover:text-blue-600 transition-colors">Site Map</a>
              </div>
           </div>
         </div>
