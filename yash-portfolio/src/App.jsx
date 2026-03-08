@@ -35,7 +35,8 @@ import {
  * // import profilePhoto from './assets/photo.jpg';
  * 3. Replace the placeholder constant 'PROFILE_IMAGE_URL' with 'profilePhoto' inside the <img> tags.
  */
-const PROFILE_IMAGE_URL = "src/assets/photo.jpg"; // Replace with imported photo variable if using local import
+const PROFILE_IMAGE_URL = "src/assets/photo.jpg"; 
+const PROFILE_IMAGE_URL2 = "src/assets/photo2.jpeg";// Replace with imported photo variable if using local import
 
 const App = () => {
   const [supabaseClient, setSupabaseClient] = useState(null);
@@ -287,23 +288,23 @@ const App = () => {
             <div className="md:col-span-4 space-y-10">
               <div className="relative w-40 h-40 rounded-[2rem] overflow-hidden border-4 border-slate-50 shadow-2xl mx-auto md:mx-0 group">
                  <img 
-                    src={PROFILE_IMAGE_URL} 
+                    src={PROFILE_IMAGE_URL2} 
                     alt="Profile Thumbnail" 
                     className="w-full h-full object-cover transition-transform group-hover:scale-110"
                  />
               </div>
 
               <div className="space-y-4">
-                <h2 className="text-4xl font-serif font-bold text-slate-900 tracking-tight">About the <br />Advocate</h2>
+                <h2 className="text-4xl font-serif font-bold text-slate-900 tracking-tight">About <br /></h2>
                 <div className="h-1 w-20 bg-blue-600 rounded-full shadow-sm"></div>
               </div>
               
               <div className="space-y-4">
                 {[
                   { icon: Award, label: "Enrollment", val: "Maharashtra & Goa Bar (2023)" },
-                  { icon: BookOpen, label: "Qualifications", val: "B.A.LL.B (Hons), LL.M." },
-                  { icon: BookOpen, label: "Credentials", val: "UGC-NET (Law) Qualified" },
-                  { icon: MapPin, label: "Jurisdictions", val: "Delhi & Mumbai Practice" }
+                  { icon: BookOpen, label: "Qualifications", val: "B.A.LL.B (Hons),LL.M. (Corporate & Commercial Law)" },
+                  { icon: BookOpen, label: "Credentials", val: "UGC-NET (Law) " },
+                  { icon: MapPin, label: "Jurisdictions", val: "Delhi & Mumbai " }
                 ].map((item, idx) => (
                   <div key={idx} className="flex items-start gap-4 p-5 bg-slate-50 rounded-3xl border border-slate-100 group hover:border-blue-200 transition-all">
                     <div className="bg-white p-2.5 rounded-xl text-blue-600 shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-all">
@@ -324,7 +325,7 @@ const App = () => {
                   <span className="font-bold text-blue-900">Yash P. Dadriwal</span> is a disputes lawyer practising across Delhi and Mumbai, with a focused practice in civil, commercial and criminal litigation. An alumnus of <span className="font-semibold text-slate-950 underline decoration-blue-500/30">National Law University, Aurangabad</span> and <span className="font-semibold text-slate-950 underline decoration-blue-500/30">National Law University, Mumbai</span>, he combines strong academic grounding with hands-on courtroom experience before constitutional courts, tribunals and district courts.
                 </p>
                 
-                <p className="text-slate-600 leading-relaxed py-2">
+                <p className="text-xl text-slate-700 leading-relaxed py-2">
                   Yash maintains an independent litigation practice, regularly appearing before the <span className="font-medium text-slate-900">Delhi High Court</span> and the <span className="font-medium text-slate-900">Bombay High Court</span>, as well as various district courts and tribunals. His independent work reflects a results-oriented and strategy-driven approach to dispute resolution.
                 </p>
 
@@ -347,7 +348,7 @@ const App = () => {
                   </div>
                 </div>
 
-                <p className="text-slate-600 leading-relaxed">
+                <p className="text-xl text-slate-600 leading-relaxed">
                   His exposure extends to <span className="font-medium text-slate-900">high-stakes commercial disputes</span> and arbitration. He has assisted in construction arbitrations concerning breach of contract and project abandonment, as well as multi-jurisdictional defaults under collateral management arrangements.
                 </p>
 
