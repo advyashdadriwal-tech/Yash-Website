@@ -38,12 +38,14 @@ import {
 const PROFILE_IMAGE_URL = "src/assets/photo.jpg"; 
 const PROFILE_IMAGE_URL2 = "src/assets/photo2.jpeg";// Replace with imported photo variable if using local import
 
+
 const App = () => {
   const [supabaseClient, setSupabaseClient] = useState(null);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
   const [initStatus, setInitStatus] = useState("initializing");
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   
   // Disclaimer State - Set to true by default for BCI compliance
   const [showDisclaimer, setShowDisclaimer] = useState(true);
@@ -206,9 +208,10 @@ const App = () => {
         </div>
       )}
 
-      {/* NAVIGATION */}
-      <nav className="fixed top-0 w-full bg-white/70 backdrop-blur-xl border-b border-slate-200 z-50 transition-all duration-300">
+{/* NAVIGATION */}
+      <nav className="fixed top-0 w-full bg-white border-b border-slate-200 z-[100] shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          {/* Logo Section */}
           <div className="flex items-center gap-3">
             <div className="bg-[#0f172a] p-2.5 rounded-xl text-white shadow-lg">
               <Scale size={24}/>
@@ -219,14 +222,38 @@ const App = () => {
             </div>
           </div>
           
-          <div className="hidden md:flex gap-10 text-[11px] font-black text-slate-500 uppercase tracking-widest">
+          {/* DESKTOP MENU */}
+          <div className="hidden md:flex items-center gap-10 text-[11px] font-black text-slate-500 uppercase tracking-widest">
             <a href="#about" className="hover:text-blue-700 transition-colors">About</a>
             <a href="#expertise" className="hover:text-blue-700 transition-colors">Expertise</a>
             <a href="#reviews" className="hover:text-blue-700 transition-colors">Reviews</a>
-            <a href="#contact" className="bg-[#0f172a] text-white px-7 py-2.5 rounded-full hover:bg-blue-800 transition-all shadow-xl hover:-translate-y-0.5">Consult Now</a>
+            <a href="#contact" className="bg-[#0f172a] text-white px-7 py-2.5 rounded-full hover:bg-blue-800 transition-all shadow-xl">Consult Now</a>
+          </div>
+
+          {/* MOBILE MENU BUTTON */}
+          <div className="md:hidden flex items-center">
+            <button 
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-2 text-slate-900"
+            >
+              {isMenuOpen ? <X size={28} /> : <MessageSquare size={28} className="text-blue-600" />}
+            </button>
+          </div>
+        </div>
+
+        {/* MOBILE OVERLAY MENU - Solid white background */}
+        <div className={`fixed inset-0 top-[73px] bg-white z-[90] transform transition-transform duration-300 ease-in-out md:hidden ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+          <div className="flex flex-col h-full p-8 space-y-4">
+             <a href="#about" onClick={() => setIsMenuOpen(false)} className="text-2xl font-bold border-b py-4">About</a>
+             <a href="#expertise" onClick={() => setIsMenuOpen(false)} className="text-2xl font-bold border-b py-4">Expertise</a>
+             <a href="#reviews" onClick={() => setIsMenuOpen(false)} className="text-2xl font-bold border-b py-4">Reviews</a>
+             <a href="#contact" onClick={() => setIsMenuOpen(false)} className="bg-blue-600 text-white text-center py-4 rounded-xl mt-4">Consult Now</a>
           </div>
         </div>
       </nav>
+
+      {/* IMPORTANT: This div adds space so the content starts AFTER the nav */}
+      <div className="h-[73px] md:h-[80px]"></div>
 
       {/* HERO SECTION */}
       <header className="pt-48 pb-32 bg-[#020617] text-white relative overflow-hidden">
@@ -258,21 +285,23 @@ const App = () => {
             </div>
           </div>
 
-          <div className="hidden md:flex justify-end animate-in fade-in zoom-in duration-1000">
+          {/* Change this line in your Hero Section */}
+          <div className="flex justify-center md:justify-end animate-in fade-in zoom-in duration-1000 mt-12 md:mt-0">
             <div className="relative group">
-              <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-[3.5rem] blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
-              <div className="relative bg-slate-900 rounded-[3.5rem] overflow-hidden border border-white/10 shadow-2xl w-full max-w-[420px]">
+              <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-[2.5rem] md:rounded-[3.5rem] blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+              <div className="relative bg-slate-900 rounded-[2.5rem] md:rounded-[3.5rem] overflow-hidden border border-white/10 shadow-2xl w-full max-w-[320px] md:max-w-[420px]">
                 <img 
                   src={PROFILE_IMAGE_URL} 
                   alt="Adv. Yash Dadriwal" 
-                  className="w-full h-[550px] object-cover object-top filter brightness-95 contrast-105 group-hover:scale-105 transition-transform duration-700"
+                  className="w-full h-[400px] md:h-[550px] object-cover object-top filter brightness-95 contrast-105 group-hover:scale-105 transition-transform duration-700"
                 />
-                <div className="absolute bottom-0 left-0 right-0 p-10 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent">
-                  <Quote size={32} className="text-blue-500/40 mb-4" />
-                  <p className="italic text-2xl text-white font-serif mb-4 leading-tight">"Integrity is the cornerstone of Justice."</p>
+                {/* Reduced padding for mobile text overlay */}
+                <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent">
+                  <Quote size={24} className="text-blue-500/40 mb-2 md:mb-4" />
+                  <p className="italic text-lg md:text-2xl text-white font-serif mb-2 md:mb-4 leading-tight">"Integrity is the cornerstone of Justice."</p>
                   <div className="flex items-center gap-3">
                     <div className="h-px w-10 bg-blue-500"></div>
-                    <p className="text-blue-400 text-[10px] font-black uppercase tracking-[0.4em]">Adv. Yash Dadriwal</p>
+                    <p className="text-blue-400 text-[8px] md:text-[10px] font-black uppercase tracking-[0.4em]">Adv. Yash Dadriwal</p>
                   </div>
                 </div>
               </div>
@@ -282,86 +311,101 @@ const App = () => {
       </header>
 
       {/* ABOUT SECTION - THE PROFESSIONAL BIO */}
-      <section id="about" className="py-32 bg-white relative overflow-hidden border-b border-slate-100">
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="grid md:grid-cols-12 gap-16 items-start">
-            <div className="md:col-span-4 space-y-10">
-              <div className="relative w-40 h-40 rounded-[2rem] overflow-hidden border-4 border-slate-50 shadow-2xl mx-auto md:mx-0 group">
-                 <img 
-                    src={PROFILE_IMAGE_URL2} 
-                    alt="Profile Thumbnail" 
-                    className="w-full h-full object-cover transition-transform group-hover:scale-110"
-                 />
-              </div>
-
-              <div className="space-y-4">
-                <h2 className="text-4xl font-serif font-bold text-slate-900 tracking-tight">About <br /></h2>
-                <div className="h-1 w-20 bg-blue-600 rounded-full shadow-sm"></div>
-              </div>
-              
-              <div className="space-y-4">
-                {[
-                  { icon: Award, label: "Enrollment", val: "Maharashtra & Goa Bar (2023)" },
-                  { icon: BookOpen, label: "Qualifications", val: "B.A.LL.B (Hons),LL.M. (Corporate & Commercial Law)" },
-                  { icon: BookOpen, label: "Credentials", val: "UGC-NET (Law) " },
-                  { icon: MapPin, label: "Jurisdictions", val: "Delhi & Mumbai " }
-                ].map((item, idx) => (
-                  <div key={idx} className="flex items-start gap-4 p-5 bg-slate-50 rounded-3xl border border-slate-100 group hover:border-blue-200 transition-all">
-                    <div className="bg-white p-2.5 rounded-xl text-blue-600 shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-all">
-                      <item.icon size={22} />
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{item.label}</p>
-                      <p className="text-sm font-bold text-slate-800">{item.val}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+    <section id="about" className="py-12 md:py-32 bg-white relative overflow-hidden border-b border-slate-100">
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        <div className="grid lg:grid-cols-12 gap-12 lg:gap-20 items-start">
+          
+          {/* LEFT COLUMN: Profile & Stats */}
+          <div className="lg:col-span-4 space-y-10 flex flex-col items-center lg:items-start text-center lg:text-left">
+            <div className="relative w-48 h-48 md:w-56 md:h-56 lg:w-48 lg:h-48 rounded-[2.5rem] overflow-hidden border-8 border-slate-50 shadow-2xl group">
+              <img 
+                  src={PROFILE_IMAGE_URL2} 
+                  alt="Advocate Yash Dadriwal" 
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-blue-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             </div>
 
-            <div className="md:col-span-8 space-y-10">
-              <div className="prose prose-slate max-w-none">
-                <p className="text-xl text-slate-700 leading-relaxed font-light">
-                  <span className="font-bold text-blue-900">Yash P. Dadriwal</span> is a disputes lawyer practising across Delhi and Mumbai, with a focused practice in civil, commercial and criminal litigation. An alumnus of <span className="font-semibold text-slate-950 underline decoration-blue-500/30">National Law University, Aurangabad</span> and <span className="font-semibold text-slate-950 underline decoration-blue-500/30">National Law University, Mumbai</span>, he combines strong academic grounding with hands-on courtroom experience before constitutional courts, tribunals and district courts.
-                </p>
-                
-                <p className="text-xl text-slate-700 leading-relaxed py-2">
-                  Yash maintains an independent litigation practice, regularly appearing before the <span className="font-medium text-slate-900">Delhi High Court</span> and the <span className="font-medium text-slate-900">Bombay High Court</span>, as well as various district courts and tribunals. His independent work reflects a results-oriented and strategy-driven approach to dispute resolution.
-                </p>
-
-                <div className="grid md:grid-cols-2 gap-8 my-8">
-                  <div className="p-8 bg-blue-50/50 rounded-[2.5rem] border border-blue-100 space-y-4 group hover:bg-white hover:shadow-xl transition-all duration-500">
-                    <div className="flex items-center gap-2 text-blue-800 font-bold uppercase text-[10px] tracking-widest">
-                      <History size={16} /> Notable Successes
-                    </div>
-                    <p className="text-sm text-slate-600 leading-relaxed">
-                      Successfully argued and secured a favourable order in a <span className="font-semibold text-blue-950">writ petition challenging an incorrect CLAT-UG question</span> before the Hon'ble Chief Justice of the Delhi High Court.
-                    </p>
+            <div className="space-y-4 w-full">
+              <div className="inline-block">
+                <h2 className="text-4xl font-serif font-bold text-slate-900 tracking-tight">About</h2>
+                <div className="h-1.5 w-full bg-blue-600 rounded-full mt-2 shadow-sm"></div>
+              </div>
+            </div>
+            
+            <div className="space-y-4 w-full text-left">
+              {[
+                { icon: Award, label: "Enrollment", val: "Bar Council of Maharashtra & Goa (2023)" },
+                { icon: BookOpen, label: "Qualifications", val: "B.A.LL.B (Hons), LL.M. (Corporate & Commercial Law)" },
+                { icon: Shield, label: "Credentials", val: "UGC-NET (Law) Qualified" },
+                { icon: MapPin, label: "Jurisdictions", val: "Delhi & Mumbai Courts" }
+              ].map((item, idx) => (
+                <div key={idx} className="flex items-start gap-4 p-5 bg-slate-50/50 rounded-3xl border border-slate-100 hover:border-blue-200 hover:bg-white hover:shadow-md transition-all duration-300 group">
+                  <div className="bg-white p-2.5 rounded-xl text-blue-600 shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-all">
+                    <item.icon size={20} />
                   </div>
-                  <div className="p-8 bg-slate-900 rounded-[2.5rem] text-white space-y-4 shadow-2xl group hover:-translate-y-1 transition-transform duration-500">
-                    <div className="flex items-center gap-2 text-blue-400 font-bold uppercase text-[10px] tracking-widest">
-                      <Shield size={16} /> Complex Matters
-                    </div>
-                    <p className="text-sm text-slate-300 leading-relaxed">
-                      Represented clients in <span className="text-white font-medium">landlord–tenant revisions</span>, Section 138 NI Act matters, and secured interim protections in sensitive <span className="text-white">Section 498A IPC</span> criminal proceedings.
-                    </p>
+                  <div className="flex-1">
+                    <p className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-400 mb-0.5">{item.label}</p>
+                    <p className="text-xs md:text-sm font-bold text-slate-800 leading-tight">{item.val}</p>
                   </div>
                 </div>
+              ))}
+            </div>
+          </div>
 
-                <p className="text-xl text-slate-600 leading-relaxed">
-                  His exposure extends to <span className="font-medium text-slate-900">high-stakes commercial disputes</span> and arbitration. He has assisted in construction arbitrations concerning breach of contract and project abandonment, as well as multi-jurisdictional defaults under collateral management arrangements.
+          {/* RIGHT COLUMN: Bio & Success Cards */}
+          <div className="lg:col-span-8 space-y-12">
+            <div className="prose prose-slate max-w-none">
+              {/* Use the custom 'text-justify-premium' class for perfect alignment */}
+              <div className="space-y-6 text-justify-premium">
+                <p className="text-lg md:text-xl text-slate-700 leading-relaxed font-light">
+                  <span className="font-bold text-blue-900">Yash P. Dadriwal</span> is a disputes lawyer practising across Delhi and Mumbai, with a focused practice in civil, commercial and criminal litigation. An alumnus of <span className="font-semibold text-slate-950 underline decoration-blue-500/10 underline-offset-4">National Law University, Aurangabad</span> and <span className="font-semibold text-slate-950 underline decoration-blue-500/10 underline-offset-4">National Law University, Mumbai</span>, he combines strong academic grounding with hands-on courtroom experience before constitutional courts, tribunals and district courts.
                 </p>
+                
+                <p className="text-lg md:text-xl text-slate-700 leading-relaxed font-light">
+                  Yash maintains an independent litigation practice, regularly appearing before the <span className="font-medium text-slate-900">Delhi High Court</span> and the <span className="font-medium text-slate-900">Bombay High Court</span>, as well as various district courts and tribunals. His independent work reflects a results-oriented and strategy-driven approach to dispute resolution.
+                </p>
+              </div>
 
-                <div className="pt-8 border-t border-slate-100 mt-8">
-                   <p className="font-serif italic text-xl text-blue-900">
-                      "Defining the path to justice through meticulous drafting, thorough research, and effective oral advocacy."
-                   </p>
+              <div className="grid md:grid-cols-2 gap-6 my-10">
+                <div className="p-8 bg-blue-50/40 rounded-[2.5rem] border border-blue-100 space-y-4 hover:bg-white hover:shadow-xl transition-all duration-500 group">
+                  <div className="flex items-center gap-2 text-blue-800 font-bold uppercase text-[10px] tracking-widest">
+                    <History size={16} className="group-hover:rotate-[-20deg] transition-transform" /> Notable Successes
+                  </div>
+                  <p className="text-sm text-slate-600 leading-relaxed text-justify-premium">
+                    Successfully argued and secured a favourable order in a <span className="font-semibold text-blue-950">writ petition challenging an incorrect CLAT-UG question</span> before the Hon'ble Chief Justice of the Delhi High Court.
+                  </p>
+                </div>
+                
+                <div className="p-8 bg-slate-900 rounded-[2.5rem] text-white space-y-4 shadow-2xl hover:-translate-y-2 transition-transform duration-500">
+                  <div className="flex items-center gap-2 text-blue-400 font-bold uppercase text-[10px] tracking-widest">
+                    <Gavel size={16} /> Complex Matters
+                  </div>
+                  <p className="text-sm text-slate-300 leading-relaxed">
+                    Expert handling of Landlord & Tenant Disputes, Bail Matters, Matrimonial Proceedings, and Section 138 NI Act litigation across multiple jurisdictions.
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-lg md:text-xl text-slate-600 leading-relaxed font-light text-justify-premium">
+                His exposure extends to <span className="font-medium text-slate-900">High-stakes Commercial Disputes and Arbitration</span>. He has assisted in disputes concerning contractual breaches, construction arbitrations, and multi-jurisdictional legal challenges.
+              </p>
+
+              {/* QUOTE SECTION: Centered and spaced */}
+              <div className="pt-4 md:pt-6 border-t border-slate-100 mt-4 md:mt-6">
+                <div className="max-w-2xl mx-auto text-center">
+                  <Quote size={32} className="mx-auto text-blue-100 mb-6" />
+                  <p className="font-serif italic text-xl md:text-2xl text-blue-900 leading-relaxed">
+                    "Defining the path to justice through meticulous drafting, thorough research, and effective oral advocacy."
+                  </p>
+                  <div className="mt-8 h-1.5 w-16 bg-blue-600/10 mx-auto rounded-full"></div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
       {/* EXPERTISE SECTION */}
       <section id="expertise" className="py-32 bg-slate-50 relative">
@@ -375,17 +419,17 @@ const App = () => {
               { 
                 title: "Civil & Commercial", 
                 icon: Briefcase, 
-                list: ["Landlord-Tenant Disputes", "Contractual Breaches", "Revision Petitions", "Real Estate (RERA)"] 
+                list: ["Property Disputes", "Contractual Breaches", "Insolvency & Bankruptcy Matters", "Intellectual Property Disputes"] 
               },
               { 
                 title: "Criminal & Matrimonial", 
                 icon: Gavel, 
-                list: ["Section 138 NI Act", "Section 498A IPC Matters", "Interim Protections", "White Collar Defense"] 
+                list: ["Crime Against Body & Property","White Collar Defense", "Cheque Bounce Cases", "Divorce, Sepration & Custody Disputes"] 
               },
               { 
                 title: "Arbitration & ADR", 
                 icon: ScaleIcon, 
-                list: ["Construction Disputes", "Multi-jurisdictional Defaults", "Mediation Advocacy", "Domestic/Intl Arbitration"] 
+                list: ["Domestic/Intl Arbitration","Contractual & Construction Disputes", "Multi-jurisdictional Defaults", "Mediation & Conciliation Advocacy" ] 
               }
             ].map((item, i) => (
               <div key={i} className="group bg-white p-10 rounded-[3rem] border border-slate-100 hover:shadow-2xl transition-all duration-500">
@@ -452,142 +496,142 @@ const App = () => {
         </div>
       </section>
 
-      {/* CONTACT SECTION */}
-      <section id="contact" className="py-32 bg-[#020617] text-white">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="bg-white text-slate-900 rounded-[4rem] p-10 md:p-20 shadow-3xl relative overflow-hidden border border-white/5">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50/30 blur-[100px] -mr-32 -mt-32 rounded-full" />
-            
-            <div className="grid md:grid-cols-5 gap-20 relative z-10">
-              <div className="md:col-span-2 space-y-10">
-                <h2 className="text-5xl font-serif font-bold text-slate-900 leading-tight">Begin Your <br />Consultation</h2>
-                <p className="text-slate-500 leading-relaxed text-lg font-light">
-                  Submit your details securely. Our office will review your case and respond within 24 business hours.
-                </p>
+      
+            {/* CONTACT SECTION */}
+        <section id="contact" className="py-20 md:py-32 bg-[#020617] text-white">
+          <div className="max-w-6xl mx-auto px-4 md:px-6">
+            {/* Responsive Padding: p-6 on mobile, p-10/md:p-20 on desktop */}
+            <div className="bg-white text-slate-900 rounded-[2.5rem] md:rounded-[4rem] p-6 md:p-20 shadow-3xl relative overflow-hidden border border-white/5">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50/30 blur-[100px] -mr-32 -mt-32 rounded-full" />
+              
+              {/* Changed from grid to flex-col on mobile, grid on md */}
+              <div className="flex flex-col md:grid md:grid-cols-5 gap-12 md:gap-20 relative z-10">
                 
-                <div className="space-y-6 pt-6">
-                  <div className="flex items-center gap-5 group cursor-pointer" onClick={() => window.location.href='mailto:advyashdadriwal@gmail.com'}>
-                    <div className="bg-blue-50 p-4 rounded-2xl text-blue-950 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm">
-                      <Mail size={22}/>
+                {/* Left Column: Contact Info */}
+                <div className="md:col-span-2 space-y-8 md:space-y-10">
+                  <h2 className="text-4xl md:text-5xl font-serif font-bold text-slate-900 leading-tight">
+                    Begin Your <br className="hidden md:block" /> Consultation
+                  </h2>
+                  <p className="text-slate-500 leading-relaxed text-base md:text-lg font-light">
+                    Submit your details securely. Our office will review your case and respond within 24 business hours.
+                  </p>
+                  
+                  <div className="space-y-6 pt-2">
+                    {/* Email - Uses break-all and truncate to prevent cutting */}
+                    <div className="flex items-center gap-4 group cursor-pointer overflow-hidden" onClick={() => window.location.href='mailto:advyashdadriwal@gmail.com'}>
+                      <div className="shrink-0 bg-blue-50 p-3.5 md:p-4 rounded-xl md:rounded-2xl text-blue-950 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm">
+                        <Mail size={20}/>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">Email Address</p>
+                        <p className="font-bold text-slate-900 text-sm md:text-base break-all md:break-normal truncate md:overflow-visible">advyashdadriwal@gmail.com</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Email Address</p>
-                      <p className="font-bold text-slate-900">advyashdadriwal@gmail.com</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-5 group cursor-pointer" onClick={() => window.open('https://www.linkedin.com/in/yash-dadriwal-8a30161b2/', '_blank')}>
-                    <div className="bg-blue-50 p-4 rounded-2xl text-blue-950 group-hover:bg-[#0077b5] group-hover:text-white transition-all shadow-sm">
-                      <Linkedin size={22}/>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">LinkedIn Profile</p>
-                      <p className="font-bold text-slate-900 underline decoration-blue-500/30">Adv. Yash Dadriwal</p>
+
+                    {/* LinkedIn */}
+                    <div className="flex items-center gap-4 group cursor-pointer overflow-hidden" onClick={() => window.open('https://www.linkedin.com/in/yash-dadriwal-8a30161b2/', '_blank')}>
+                      <div className="shrink-0 bg-blue-50 p-3.5 md:p-4 rounded-xl md:rounded-2xl text-blue-950 group-hover:bg-[#0077b5] group-hover:text-white transition-all shadow-sm">
+                        <Linkedin size={20}/>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">LinkedIn Profile</p>
+                        <p className="font-bold text-slate-900 text-sm md:text-base underline decoration-blue-500/30 truncate">Adv. Yash Dadriwal</p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="md:col-span-3">
-                <div className="bg-slate-50 rounded-[3rem] p-8 md:p-12 border border-slate-200 shadow-inner">
-                  {submitted ? (
-                    <div className="text-center py-20 animate-in fade-in zoom-in">
-                      <div className="bg-green-100 p-8 rounded-full w-fit mx-auto mb-8 shadow-lg shadow-green-100">
-                        <CheckCircle size={56} className="text-green-600"/>
+                {/* Right Column: Form */}
+                <div className="md:col-span-3">
+                  <div className="bg-slate-50 rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 border border-slate-200 shadow-inner">
+                    {submitted ? (
+                      <div className="text-center py-10 md:py-20 animate-in fade-in zoom-in">
+                        <div className="bg-green-100 p-6 md:p-8 rounded-full w-fit mx-auto mb-6 md:mb-8 shadow-lg shadow-green-100">
+                          <CheckCircle size={48} className="text-green-600 md:size-14"/>
+                        </div>
+                        <h3 className="text-2xl md:text-3xl font-serif font-bold text-slate-900">Request Received</h3>
+                        <p className="text-slate-500 mt-4 max-w-xs mx-auto font-medium text-sm">
+                          Your inquiry has been stored with us. We will be in touch shortly.
+                        </p>
+                        <button onClick={() => setSubmitted(false)} className="mt-8 text-blue-600 font-bold hover:underline text-sm tracking-wide">Send another request</button>
                       </div>
-                      <h3 className="text-3xl font-serif font-bold text-slate-900">Request Received</h3>
-                      <p className="text-slate-500 mt-5 max-w-xs mx-auto font-medium text-sm">
-                        Your inquiry has been stored in our Supabase database. We will be in touch shortly.
-                      </p>
-                      <button onClick={() => setSubmitted(false)} className="mt-8 text-blue-600 font-bold hover:underline text-sm tracking-wide">Send another request</button>
-                    </div>
-                  ) : (
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                      <div className="grid md:grid-cols-2 gap-6">
+                    ) : (
+                      <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
+                        {/* Responsive Grid for Name/Phone */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                          <div className="space-y-2">
+                            <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Full Name</label>
+                            <input
+                              name="fullName"
+                              placeholder="e.g. John Doe"
+                              required
+                              value={formData.fullName}
+                              onChange={handleInputChange}
+                              className="w-full bg-white border border-slate-200 p-4 md:p-5 rounded-xl md:rounded-2xl outline-none focus:ring-4 focus:ring-blue-100 transition-all font-medium text-slate-800 shadow-sm text-sm md:text-base"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Phone Number</label>
+                            <input
+                              name="phone"
+                              type="tel"
+                              placeholder="+91..."
+                              required
+                              value={formData.phone}
+                              onChange={handleInputChange}
+                              className="w-full bg-white border border-slate-200 p-4 md:p-5 rounded-xl md:rounded-2xl outline-none focus:ring-4 focus:ring-blue-100 transition-all font-medium text-slate-800 shadow-sm text-sm md:text-base"
+                            />
+                          </div>
+                        </div>
+
                         <div className="space-y-2">
-                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-2 flex justify-between items-center">
-                            Full Name
-                            {initStatus === "missing_keys" && (
-                              <span className="text-[8px] text-amber-600 animate-pulse">⚠️ Check .env.local</span>
-                            )}
-                          </label>
+                          <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Email Address</label>
                           <input
-                            name="fullName"
-                            placeholder="e.g. John Doe"
+                            name="email"
+                            type="email"
+                            placeholder="client@mail.com"
                             required
-                            value={formData.fullName}
+                            value={formData.email}
                             onChange={handleInputChange}
-                            className="w-full bg-white border border-slate-200 p-5 rounded-2xl outline-none focus:ring-4 focus:ring-blue-100 transition-all font-medium text-slate-800 shadow-sm"
+                            className="w-full bg-white border border-slate-200 p-4 md:p-5 rounded-xl md:rounded-2xl outline-none focus:ring-4 focus:ring-blue-100 transition-all font-medium text-slate-800 shadow-sm text-sm md:text-base"
                           />
                         </div>
+
                         <div className="space-y-2">
-                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-2">Phone Number</label>
-                          <input
-                            name="phone"
-                            type="tel"
-                            placeholder="+91..."
+                          <label className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1">Legal Query Detail</label>
+                          <textarea
+                            name="query"
+                            rows="4"
+                            placeholder="Briefly describe your legal concern..."
                             required
-                            value={formData.phone}
+                            value={formData.query}
                             onChange={handleInputChange}
-                            className="w-full bg-white border border-slate-200 p-5 rounded-2xl outline-none focus:ring-4 focus:ring-blue-100 transition-all font-medium text-slate-800 shadow-sm"
+                            className="w-full bg-white border border-slate-200 p-4 md:p-5 rounded-xl md:rounded-2xl outline-none focus:ring-4 focus:ring-blue-100 transition-all resize-none font-medium text-slate-800 shadow-sm text-sm md:text-base"
                           />
                         </div>
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-2">Email Address</label>
-                        <input
-                          name="email"
-                          type="email"
-                          placeholder="client@mail.com"
-                          required
-                          value={formData.email}
-                          onChange={handleInputChange}
-                          className="w-full bg-white border border-slate-200 p-5 rounded-2xl outline-none focus:ring-4 focus:ring-blue-100 transition-all font-medium text-slate-800 shadow-sm"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-2">Legal Query Detail</label>
-                        <textarea
-                          name="query"
-                          rows="4"
-                          placeholder="Briefly describe your legal concern..."
-                          required
-                          value={formData.query}
-                          onChange={handleInputChange}
-                          className="w-full bg-white border border-slate-200 p-5 rounded-2xl outline-none focus:ring-4 focus:ring-blue-100 transition-all resize-none font-medium text-slate-800 shadow-sm"
-                        />
-                      </div>
 
-                      {error && (
-                        <div className="flex items-center gap-2 text-red-600 bg-red-50 p-4 rounded-2xl text-xs font-bold border border-red-100 shadow-sm">
-                          <AlertCircle size={16} />
-                          <span>{error}</span>
-                        </div>
-                      )}
-
-                      <button
-                        type="submit"
-                        disabled={loading || initStatus === "initializing"}
-                        className="w-full bg-[#0f172a] text-white py-6 rounded-[1.5rem] font-bold text-lg hover:bg-blue-900 transition-all shadow-2xl active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3 group"
-                      >
-                        {loading || initStatus === "initializing" ? (
-                          <Loader2 className="animate-spin" />
-                        ) : (
-                          <>
-                            Register Lead <Send size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                          </>
+                        {error && (
+                          <div className="flex items-center gap-2 text-red-600 bg-red-50 p-4 rounded-xl text-xs font-bold border border-red-100 shadow-sm">
+                            <AlertCircle size={14} />
+                            <span>{error}</span>
+                          </div>
                         )}
-                      </button>
-                      <p className="text-[9px] text-center text-slate-400 font-bold uppercase tracking-widest pt-2 flex items-center justify-center gap-1">
-                        <Shield size={12} className="text-blue-900" /> Secure Legal Cloud Storage Active
-                      </p>
-                    </form>
-                  )}
+
+                        <button
+                          type="submit"
+                          disabled={loading || initStatus === "initializing"}
+                          className="w-full bg-[#0f172a] text-white py-4 md:py-6 rounded-xl md:rounded-[1.5rem] font-bold text-base md:text-lg hover:bg-blue-900 transition-all shadow-xl active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3 group"
+                        >
+                          {loading ? <Loader2 className="animate-spin" /> : <>Register Lead <Send size={18} className="group-hover:translate-x-1 transition-transform" /></>}
+                        </button>
+                      </form>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
       {/* FLOATING ACTION BUTTON */}
       <a
@@ -597,17 +641,42 @@ const App = () => {
         <Phone size={20}/> Consult Now
       </a>
 
+     
       {/* FOOTER */}
       <footer className="py-32 bg-white text-center border-t border-slate-100">
         <div className="max-w-7xl mx-auto px-6">
           <ScaleIcon size={40} className="mx-auto text-[#0f172a] mb-8"/>
           <p className="font-serif font-bold text-3xl text-slate-950 tracking-tight uppercase">Yash Dadriwal</p>
-          <div className="flex items-center justify-center gap-3 mt-4">
+          <div className="flex items-center justify-center gap-3 mt-4 mb-12">
              <Award size={16} className="text-blue-600" />
              <p className="text-[10px] uppercase tracking-[0.5em] text-slate-400 font-black">Justice • Integrity • Excellence</p>
           </div>
+
+          {/* NEW ADDRESS SECTION */}
+          <div className="mb-12 max-w-sm mx-auto">
+            <a 
+              href="https://www.google.com/maps/place/F-17,+Jangpura,+Block+F,+Jungpura+Extension,+New+Delhi,+Delhi+110014/@28.5812089,77.2382263,17z/data=!3m1!4b1!4m6!3m5!1s0x390ce30060c48ee9:0x928e017ae236bbd2!8m2!3d28.581209!4d77.2430972!16s%2Fg%2F11w7q2s3rd?entry=ttu&g_ep=EgoyMDI2MDMwNC4xIKXMDSoASAFQAw%3D%3D" 
+              target="_blank" 
+              rel="noreferrer"
+              className="group flex flex-col items-center gap-4 p-6 rounded-[2rem] hover:bg-slate-50 transition-all duration-300 border border-transparent hover:border-slate-100"
+            >
+              <div className="bg-blue-50 p-4 rounded-2xl text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm">
+                <MapPin size={24} />
+              </div>
+              <div className="space-y-1">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Principal Chamber</p>
+                <p className="text-slate-700 font-medium text-sm leading-relaxed">
+                  1st Floor, F-17, Jungpura Extension, New Delhi-110014<br />
+                  
+                </p>
+                <p className="text-blue-600 text-[10px] font-bold uppercase tracking-tight pt-2 flex items-center justify-center gap-1">
+                  View on Google Maps <ExternalLink size={10} />
+                </p>
+              </div>
+            </a>
+          </div>
           
-          <div className="flex justify-center gap-12 mt-12">
+          <div className="flex justify-center gap-12 mt-6">
             <a href="https://www.linkedin.com/in/yash-dadriwal-8a30161b2/" target="_blank" rel="noreferrer" className="text-slate-400 hover:text-blue-600 transition-all hover:scale-125">
               <Linkedin size={24}/>
             </a>
@@ -616,16 +685,7 @@ const App = () => {
             </a>
           </div>
           
-          <div className="mt-20 pt-10 border-t border-slate-50 flex flex-col md:flex-row justify-between items-center gap-6">
-             <p className="text-[10px] text-slate-300 font-black uppercase tracking-widest">
-                © {new Date().getFullYear()} Yash Dadriwal. All rights reserved.
-             </p>
-             <div className="flex gap-8 text-[10px] text-slate-400 font-bold uppercase tracking-tighter">
-                <a href="#" className="hover:text-blue-600 transition-colors">Privacy Policy</a>
-                <a href="#" className="hover:text-blue-600 transition-colors">Legal Notice</a>
-                <a href="#" className="hover:text-blue-600 transition-colors">Site Map</a>
-             </div>
-          </div>
+          {/* ... existing copyright/bottom links ... */}
         </div>
       </footer>
 
