@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* ---------------------------------------------------------
-  ADVOCATE YASH DADRIWAL - PREMIUM GLOBAL STYLES
+  ADVOCATE YASH DADRIWAL - PREMIUM GLOBAL STYLES (RESPONSIVE)
   ---------------------------------------------------------
 */
 
@@ -18,33 +18,35 @@
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Prevents horizontal scrolling on small devices */
+    overflow-x: hidden;
   }
 
   body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     background-color: var(--legal-slate-soft);
     color: #0f172a;
-    overflow-x: hidden;
+    /* Better text rendering for mobile */
+    text-rendering: optimizeLegibility;
   }
 }
 
-/* ---------- CUSTOM SCROLLBAR ---------- */
+/* ---------- CUSTOM SCROLLBAR (Hidden on mobile for cleaner look) ---------- */
 
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f5f9;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+@media (min-width: 1024px) {
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #f1f5f9;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
 }
 
 /* ---------- TYPOGRAPHY ---------- */
@@ -58,7 +60,7 @@
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -68,32 +70,27 @@
 
 @keyframes float {
   0% { transform: translateY(0px); }
-  50% { transform: translateY(-15px); }
+  50% { transform: translateY(-10px); }
   100% { transform: translateY(0px); }
 }
 
-@keyframes pulse-glow {
-  0%, 100% { opacity: 0.5; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.05); }
-}
-
 .animate-fade-in-up {
-  animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.animate-float {
-  animation: float 8s ease-in-out infinite;
-}
-
-.animate-pulse-slow {
-  animation: pulse-glow 10s ease-in-out infinite;
+/* Disable heavy animations on mobile to save battery/performance if preferred */
+@media (prefers-reduced-motion: reduce) {
+  .animate-float, .animate-fade-in-up {
+    animation: none;
+  }
 }
 
 /* ---------- COMPONENT CLASSES ---------- */
 
 @layer components {
+  /* Navigation: Larger tap targets for mobile */
   .nav-link {
-    @apply relative py-1 transition-all duration-300;
+    @apply relative py-2 px-1 transition-all duration-300 inline-block;
   }
 
   .nav-link::after {
@@ -105,55 +102,121 @@
     @apply w-full;
   }
 
+  /* Responsive Premium Card: Less padding on mobile */
   .card-premium {
-    @apply bg-white rounded-[2.5rem] p-10 border border-slate-100 shadow-sm transition-all duration-500;
+    @apply bg-white rounded-[1.5rem] md:rounded-[2.5rem] p-6 md:p-10 border border-slate-100 shadow-sm transition-all duration-500;
   }
 
   .card-premium:hover {
-    @apply shadow-2xl -translate-y-3 border-blue-100;
+    @apply md:shadow-2xl md:-translate-y-3 border-blue-100;
   }
 
+  /* Luxury Button: Scale effect for touch feedback */
   .btn-luxury {
-    @apply relative overflow-hidden transition-all duration-300 active:scale-95;
+    @apply relative overflow-hidden transition-all duration-300 active:scale-95 px-6 py-3 rounded-xl inline-flex items-center justify-center;
   }
 
-  .btn-luxury::before {
-    content: '';
-    @apply absolute top-0 left-[-100%] w-full h-full bg-white/10 skew-x-[-25deg] transition-all duration-500;
-  }
-
-  .btn-luxury:hover::before {
-    @apply left-[100%];
-  }
-
+  /* Input fields: Proper font-size (16px+) to prevent iOS auto-zoom */
   .input-field {
-    @apply w-full px-6 py-5 rounded-2xl border border-slate-200 bg-slate-50/50 outline-none transition-all duration-300;
+    @apply w-full px-5 py-4 md:px-6 md:py-5 rounded-xl md:rounded-2xl border border-slate-200 bg-slate-50/50 outline-none transition-all duration-300 text-base;
   }
 
   .input-field:focus {
-    @apply border-blue-500 bg-white ring-[6px] ring-blue-50;
+    @apply border-blue-500 bg-white ring-[4px] md:ring-[6px] ring-blue-50;
   }
 }
 
 /* ---------- GLASSMORPHISM ---------- */
 
 .glass-portal {
-  background: rgba(15, 23, 42, 0.6);
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ---------- RESPONSIVE UTILITIES ---------- */
+
+/* Mobile-friendly Hero Gradient */
+.hero-gradient {
+  background: radial-gradient(circle at top, rgba(37, 99, 235, 0.08), transparent 70%);
+}
+
+@media (min-width: 1024px) {
+  .hero-gradient {
+    background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.1), transparent 40%),
+                radial-gradient(circle at bottom right, rgba(79, 70, 229, 0.1), transparent 40%);
+  }
+}
+
+/* Prevents layout shift on mobile images */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ---------- PREMIUM MOBILE MENU UI ---------- */
+
+/* The container that slides in */
+.mobile-menu-drawer {
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.glass-card {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+/* Styling the links for thumbs */
+.mobile-nav-link {
+  @apply text-2xl font-serif font-semibold text-slate-900 py-4 border-b border-slate-100 flex justify-between items-center;
 }
 
-/* ---------- HERO SPECIFIC ---------- */
-
-.hero-gradient {
-  background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.1), transparent 40%),
-              radial-gradient(circle at bottom right, rgba(79, 70, 229, 0.1), transparent 40%);
+.mobile-nav-link:active {
+  @apply text-blue-600 bg-slate-50;
 }
+
+/* Animation for the links to pop in one by one */
+.mobile-menu-item {
+  opacity: 0;
+  transform: translateX(20px);
+  transition: all 0.3s ease-out;
+}
+
+.is-open .mobile-menu-item {
+  opacity: 1;
+  transform: translateX(0);
+}
+/* Fix for Solid Navigation */
+nav {
+    background-color: #ffffff !important; /* Forces solid white */
+    opacity: 1 !important;
+    backdrop-filter: none !important; /* Removes the "glass" look */
+}
+
+/* Ensure the body doesn't scroll when mobile menu is open */
+body.menu-open {
+    overflow: hidden;
+}
+/* Perfect Justification for Legal Content */
+.text-justify-premium {
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  -ms-hyphens: auto;
+}
+
+/* Ensure mobile text doesn't look weird with justification */
+@media (max-width: 640px) {
+  .text-justify-premium {
+    line-height: 1.7;      /* Slightly more line height on mobile for better focus */
+    letter-spacing: -0.01em;
+  }
+}
+/* Staggered delays for the links */
+.delay-1 { transition-delay: 0.1s; }
+.delay-2 { transition-delay: 0.2s; }
+.delay-3 { transition-delay: 0.3s; }
+.delay-4 { transition-delay: 0.4s; }
