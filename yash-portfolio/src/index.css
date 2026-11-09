@@ -46,11 +46,11 @@
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 bg-ink px-7 py-3.5 text-sm font-medium tracking-wide text-ivory transition-colors hover:bg-ink-soft disabled:cursor-not-allowed disabled:opacity-40;
+    @apply inline-flex items-center justify-center gap-2 bg-ink px-5 sm:px-7 py-3.5 text-sm font-medium tracking-wide text-ivory transition-colors hover:bg-ink-soft disabled:cursor-not-allowed disabled:opacity-40;
   }
 
   .btn-outline {
-    @apply inline-flex items-center justify-center gap-2 border border-ink/20 px-7 py-3.5 text-sm font-medium tracking-wide text-ink transition-colors hover:border-ink hover:bg-ink hover:text-ivory;
+    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap border border-ink/20 px-4 sm:px-7 py-3.5 text-sm font-medium tracking-wide text-ink transition-colors hover:border-ink hover:bg-ink hover:text-ivory;
   }
 
   /* Inputs keep 16px text so iOS doesn't auto-zoom */

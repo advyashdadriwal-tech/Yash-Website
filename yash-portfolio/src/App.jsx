@@ -92,11 +92,10 @@ const readDisclaimerAccepted = () => {
   }
 };
 
-const SectionHeading = ({ index, eyebrow, title, light = false }) => (
-  <div className="space-y-4">
-    <p className={`eyebrow ${light ? "text-brass-light" : ""}`}>
-      <span className="tabular-nums">{index}</span>
-      <span className="mx-2 opacity-60">—</span>
+const SectionHeading = ({ eyebrow, title, light = false }) => (
+  <div className="space-y-3 md:space-y-4">
+    <p className={`eyebrow flex items-center gap-3 ${light ? "text-brass-light" : ""}`}>
+      <span className="h-px w-8 bg-current opacity-70" aria-hidden="true" />
       {eyebrow}
     </p>
     <h2
@@ -286,43 +285,56 @@ const App = () => {
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
+      </nav>
 
-        {/* MOBILE MENU */}
-        <div
-          className={`md:hidden fixed inset-x-0 top-[72px] bottom-0 bg-ivory transition-[opacity,visibility] duration-300 ${
-            isMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"
-          }`}
-        >
-          <div className="px-5 pt-6">
-            {NAV_LINKS.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                onClick={() => setIsMenuOpen(false)}
-                className="flex items-center justify-between py-5 border-b border-rule font-serif text-3xl font-semibold"
-              >
-                {link.label}
-                <ArrowRight size={20} className="text-brass" />
-              </a>
-            ))}
+      {/* MOBILE MENU - kept outside <nav> because its backdrop-blur would trap this fixed panel inside the bar */}
+      <div
+        className={`md:hidden fixed inset-x-0 top-[72px] bottom-0 z-40 overflow-y-auto bg-ivory transition-[opacity,visibility] duration-300 ${
+          isMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"
+        }`}
+        aria-hidden={!isMenuOpen}
+      >
+        <div className="flex min-h-full flex-col px-5 pt-4 pb-10">
+          {NAV_LINKS.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              onClick={() => setIsMenuOpen(false)}
+              className="flex items-center justify-between py-5 border-b border-rule font-serif text-[1.75rem] font-semibold text-ink"
+            >
+              {link.label}
+              <ArrowRight size={20} className="text-brass" />
+            </a>
+          ))}
+
+          <div className="mt-auto pt-10 space-y-4 text-[15px] text-ink">
+            <a href={`mailto:${EMAIL}`} className="flex items-center gap-3 break-all">
+              <Mail size={18} className="text-brass shrink-0" /> {EMAIL}
+            </a>
+            <a href={LINKEDIN_URL} target="_blank" rel="noreferrer" className="flex items-center gap-3">
+              <Linkedin size={18} className="text-brass shrink-0" /> LinkedIn
+            </a>
+            <a href={PROFILE_PDF_URL} target="_blank" rel="noreferrer" className="flex items-center gap-3">
+              <FileText size={18} className="text-brass shrink-0" /> Profile (PDF)
+            </a>
           </div>
         </div>
-      </nav>
+      </div>
 
       {/* HERO */}
       <header id="top" className="pt-[72px]">
-        <div className="max-w-6xl mx-auto px-5 md:px-8 pt-12 md:pt-24 pb-16 md:pb-24 grid md:grid-cols-12 gap-12 md:gap-10 items-center">
-          <div className="md:col-span-7 space-y-8 animate-fade-in-up">
+        <div className="max-w-6xl mx-auto px-5 md:px-8 pt-10 md:pt-24 pb-14 md:pb-24 grid md:grid-cols-12 gap-12 md:gap-10 items-center">
+          <div className="md:col-span-7 space-y-6 md:space-y-8 animate-fade-in-up">
             <p className="eyebrow">Advocate · Delhi &amp; Mumbai</p>
-            <h1 className="font-serif text-[2.75rem] leading-[1.05] sm:text-6xl lg:text-[4.5rem] font-semibold tracking-tight text-ink text-balance">
+            <h1 className="font-serif text-[2.5rem] leading-[1.08] sm:text-6xl lg:text-[4.5rem] font-semibold tracking-tight text-ink text-balance">
               Disputes counsel before the High Courts of Delhi and Bombay.
             </h1>
-            <p className="max-w-xl text-lg leading-relaxed text-ink-muted">
+            <p className="max-w-xl text-base md:text-lg leading-relaxed text-ink-muted">
               An independent litigation practice in civil, commercial and criminal matters — built on careful drafting,
               thorough research and clear oral advocacy.
             </p>
-            <div className="flex flex-wrap items-center gap-4 pt-2">
-              <a href="#contact" className="btn-primary">
+            <div className="grid grid-cols-2 gap-3 pt-2 sm:flex sm:flex-wrap sm:items-center sm:gap-4">
+              <a href="#contact" className="btn-primary col-span-2">
                 Send an enquiry <ArrowRight size={16} />
               </a>
               <a href={LINKEDIN_URL} target="_blank" rel="noreferrer" className="btn-outline">
@@ -335,7 +347,7 @@ const App = () => {
           </div>
 
           <div className="md:col-span-5 animate-fade-in-up [animation-delay:150ms]">
-            <figure className="relative mx-auto max-w-[360px] md:max-w-none">
+            <figure className="relative mr-3 md:mr-0 max-w-[400px] md:max-w-none">
               <div className="absolute -right-3 -bottom-3 md:-right-5 md:-bottom-5 inset-0 border border-brass/60" aria-hidden="true" />
               <img
                 src={portraitPhoto}
@@ -367,10 +379,10 @@ const App = () => {
       </header>
 
       {/* ABOUT */}
-      <section id="about" className="py-20 md:py-32">
+      <section id="about" className="py-16 md:py-32">
         <div className="max-w-6xl mx-auto px-5 md:px-8 grid lg:grid-cols-12 gap-12 lg:gap-16">
           <div className="lg:col-span-5 space-y-10">
-            <SectionHeading index="01" eyebrow="About" title="A practice grounded in the courtroom." />
+            <SectionHeading eyebrow="About" title="A practice grounded in the courtroom." />
             <img
               src={chambersPhoto}
               alt="Advocate Yash Dadriwal in chambers"
@@ -411,10 +423,10 @@ const App = () => {
       </section>
 
       {/* PRACTICE AREAS */}
-      <section id="practice" className="py-20 md:py-32 bg-ink text-ivory">
+      <section id="practice" className="py-16 md:py-32 bg-ink text-ivory">
         <div className="max-w-6xl mx-auto px-5 md:px-8">
-          <div className="grid md:grid-cols-2 gap-8 items-end mb-14 md:mb-20">
-            <SectionHeading index="02" eyebrow="Practice" title="Areas of practice" light />
+          <div className="grid md:grid-cols-2 gap-8 items-end mb-10 md:mb-20">
+            <SectionHeading eyebrow="Practice" title="Areas of practice" light />
             <p className="text-ivory/60 leading-relaxed md:text-right md:max-w-sm md:ml-auto">
               Advisory and advocacy across trial courts, High Courts and arbitral tribunals.
             </p>
@@ -428,8 +440,7 @@ const App = () => {
                   i > 0 ? "border-t md:border-t-0 md:border-l border-ivory/15" : ""
                 }`}
               >
-                <p className="font-serif text-brass-light text-lg tabular-nums">0{i + 1}</p>
-                <h3 className="mt-2 font-serif text-3xl font-semibold">{area.title}</h3>
+                <h3 className="font-serif text-3xl font-semibold">{area.title}</h3>
                 <ul className="mt-6 space-y-3">
                   {area.list.map((item) => (
                     <li key={item} className="flex gap-3 text-[15px] text-ivory/75 leading-snug">
@@ -445,10 +456,10 @@ const App = () => {
       </section>
 
       {/* SELECT MATTERS */}
-      <section id="matters" className="py-20 md:py-32">
+      <section id="matters" className="py-16 md:py-32">
         <div className="max-w-6xl mx-auto px-5 md:px-8 grid lg:grid-cols-12 gap-12">
           <div className="lg:col-span-4">
-            <SectionHeading index="03" eyebrow="Experience" title="Select matters" />
+            <SectionHeading eyebrow="Experience" title="Select matters" />
           </div>
           <ol className="lg:col-span-8 border-t border-rule">
             {MATTERS.map((matter) => (
@@ -464,10 +475,10 @@ const App = () => {
       </section>
 
       {/* CONTACT */}
-      <section id="contact" className="py-20 md:py-32 bg-ivory-deep/60 border-t border-rule">
+      <section id="contact" className="py-16 md:py-32 bg-ivory-deep/60 border-t border-rule">
         <div className="max-w-6xl mx-auto px-5 md:px-8 grid lg:grid-cols-12 gap-14 lg:gap-16">
           <div className="lg:col-span-5 space-y-10">
-            <SectionHeading index="04" eyebrow="Contact" title="Get in touch" />
+            <SectionHeading eyebrow="Contact" title="Get in touch" />
             <p className="text-ink-muted leading-relaxed max-w-md">
               Share a brief outline of your matter and the office will respond, ordinarily within one working day.
               Please do not send confidential documents through this form.
