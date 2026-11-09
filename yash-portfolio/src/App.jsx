@@ -315,7 +315,7 @@ const App = () => {
               <Linkedin size={18} className="text-brass shrink-0" /> LinkedIn
             </a>
             <a href={PROFILE_PDF_URL} target="_blank" rel="noreferrer" className="flex items-center gap-3">
-              <FileText size={18} className="text-brass shrink-0" /> Profile (PDF)
+              <FileText size={18} className="text-brass shrink-0" /> Profile
             </a>
           </div>
         </div>
@@ -341,7 +341,7 @@ const App = () => {
                 <Linkedin size={16} /> LinkedIn
               </a>
               <a href={PROFILE_PDF_URL} target="_blank" rel="noreferrer" className="btn-outline">
-                <FileText size={16} /> Profile (PDF)
+                <FileText size={16} /> Profile
               </a>
             </div>
           </div>
@@ -513,7 +513,7 @@ const App = () => {
                   <span>
                     <span className="field-label">Profile</span>
                     <span className="mt-1 inline-flex items-center gap-1 text-ink group-hover:underline underline-offset-4 decoration-brass">
-                      Dispute Resolution Profile (PDF) <ArrowUpRight size={14} />
+                      Dispute Resolution Profile <ArrowUpRight size={14} />
                     </span>
                   </span>
                 </a>
@@ -648,7 +648,7 @@ const App = () => {
             <a href={`mailto:${EMAIL}`} aria-label="Email" className="hover:text-ivory transition-colors">
               <Mail size={20} />
             </a>
-            <a href={PROFILE_PDF_URL} target="_blank" rel="noreferrer" aria-label="Profile (PDF)" className="hover:text-ivory transition-colors">
+            <a href={PROFILE_PDF_URL} target="_blank" rel="noreferrer" aria-label="Profile" className="hover:text-ivory transition-colors">
               <FileText size={20} />
             </a>
             <a href={MAPS_URL} target="_blank" rel="noreferrer" aria-label="Chambers on Google Maps" className="hover:text-ivory transition-colors">
