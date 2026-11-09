@@ -11,6 +11,7 @@ import {
   AlertCircle,
   Menu,
   X,
+  FileText,
 } from "lucide-react";
 import { supabase } from "./lib/supabase";
 import portraitPhoto from "./assets/portrait.jpg";
@@ -20,6 +21,7 @@ const EMAIL = "advyashdadriwal@gmail.com";
 const LINKEDIN_URL = "https://www.linkedin.com/in/yash-dadriwal-8a30161b2/";
 const MAPS_URL =
   "https://www.google.com/maps/place/F-17,+Jangpura,+Block+F,+Jungpura+Extension,+New+Delhi,+Delhi+110014/@28.5812089,77.2382263,17z/data=!3m1!4b1!4m6!3m5!1s0x390ce30060c48ee9:0x928e017ae236bbd2!8m2!3d28.581209!4d77.2430972!16s%2Fg%2F11w7q2s3rd";
+const PROFILE_PDF_URL = "/Yash-Dadriwal-Profile.pdf";
 const DISCLAIMER_KEY = "yd-disclaimer-accepted";
 
 const NAV_LINKS = [
@@ -325,6 +327,9 @@ const App = () => {
               <a href={LINKEDIN_URL} target="_blank" rel="noreferrer" className="btn-outline">
                 <Linkedin size={16} /> LinkedIn
               </a>
+              <a href={PROFILE_PDF_URL} target="_blank" rel="noreferrer" className="btn-outline">
+                <FileText size={16} /> Profile (PDF)
+              </a>
             </div>
           </div>
 
@@ -491,6 +496,17 @@ const App = () => {
                 </a>
               </li>
               <li>
+                <a href={PROFILE_PDF_URL} target="_blank" rel="noreferrer" className="group flex items-start gap-4">
+                  <FileText size={18} className="mt-1 text-brass shrink-0" strokeWidth={1.75} />
+                  <span>
+                    <span className="field-label">Profile</span>
+                    <span className="mt-1 inline-flex items-center gap-1 text-ink group-hover:underline underline-offset-4 decoration-brass">
+                      Dispute Resolution Profile (PDF) <ArrowUpRight size={14} />
+                    </span>
+                  </span>
+                </a>
+              </li>
+              <li>
                 <a href={MAPS_URL} target="_blank" rel="noreferrer" className="group flex items-start gap-4">
                   <MapPin size={18} className="mt-1 text-brass shrink-0" strokeWidth={1.75} />
                   <span>
@@ -619,6 +635,9 @@ const App = () => {
             </a>
             <a href={`mailto:${EMAIL}`} aria-label="Email" className="hover:text-ivory transition-colors">
               <Mail size={20} />
+            </a>
+            <a href={PROFILE_PDF_URL} target="_blank" rel="noreferrer" aria-label="Profile (PDF)" className="hover:text-ivory transition-colors">
+              <FileText size={20} />
             </a>
             <a href={MAPS_URL} target="_blank" rel="noreferrer" aria-label="Chambers on Google Maps" className="hover:text-ivory transition-colors">
               <MapPin size={20} />
