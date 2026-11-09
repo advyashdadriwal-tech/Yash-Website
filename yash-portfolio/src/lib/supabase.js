@@ -8,4 +8,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.error("Missing Supabase environment variables. Check your .env.local file.");
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Null when keys are missing so the site still renders; the form shows an error instead.
+export const supabase = supabaseUrl && supabaseAnonKey
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null;

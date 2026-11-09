@@ -3,43 +3,119 @@ import {
   Scale,
   Mail,
   Linkedin,
-  Phone,
-  BookOpen,
-  CheckCircle,
-  Send,
-  User,
-  Shield,
-  Gavel,
-  Briefcase,
-  ChevronRight,
-  Sparkles,
-  Quote,
-  Star,
-  Award,
-  AlertCircle,
   MapPin,
-  History,
-  Scale as ScaleIcon,
+  ArrowRight,
+  ArrowUpRight,
   Check,
   Loader2,
-  ExternalLink,
-  MessageSquare,
-  FileText
+  AlertCircle,
+  Menu,
+  X,
 } from "lucide-react";
+import { supabase } from "./lib/supabase";
+import portraitPhoto from "./assets/portrait.jpg";
+import chambersPhoto from "./assets/chambers.jpg";
 
-/**
- * NOTE FOR LOCAL DEVELOPMENT:
- * Since the preview environment cannot resolve external local files, 
- * I have moved the Supabase initialization logic inside this file.
- * Ensure your .env.local is inside the /yash-portfolio folder.
- */
+const EMAIL = "advyashdadriwal@gmail.com";
+const LINKEDIN_URL = "https://www.linkedin.com/in/yash-dadriwal-8a30161b2/";
+const MAPS_URL =
+  "https://www.google.com/maps/place/F-17,+Jangpura,+Block+F,+Jungpura+Extension,+New+Delhi,+Delhi+110014/@28.5812089,77.2382263,17z/data=!3m1!4b1!4m6!3m5!1s0x390ce30060c48ee9:0x928e017ae236bbd2!8m2!3d28.581209!4d77.2430972!16s%2Fg%2F11w7q2s3rd";
+const DISCLAIMER_KEY = "yd-disclaimer-accepted";
+
+const NAV_LINKS = [
+  { href: "#about", label: "About" },
+  { href: "#practice", label: "Practice" },
+  { href: "#matters", label: "Matters" },
+  { href: "#contact", label: "Contact" },
+];
+
+const CREDENTIALS = [
+  { label: "Enrolment", value: "Bar Council of Maharashtra & Goa, 2023" },
+  { label: "B.A. LL.B. (Hons.)", value: "National Law University, Aurangabad" },
+  { label: "LL.M.", value: "Corporate & Commercial Law, NLU Mumbai" },
+  { label: "UGC-NET", value: "Qualified in Law" },
+];
+
+const PRACTICE_AREAS = [
+  {
+    title: "Civil & Commercial",
+    list: [
+      "Property disputes",
+      "Contractual breaches",
+      "Insolvency & bankruptcy matters",
+      "Intellectual property disputes",
+    ],
+  },
+  {
+    title: "Criminal & Matrimonial",
+    list: [
+      "Offences against body & property",
+      "White-collar defence",
+      "Cheque dishonour (Section 138 NI Act)",
+      "Divorce, separation & custody",
+    ],
+  },
+  {
+    title: "Arbitration & ADR",
+    list: [
+      "Domestic & international arbitration",
+      "Contractual & construction disputes",
+      "Multi-jurisdictional defaults",
+      "Mediation & conciliation",
+    ],
+  },
+];
+
+const MATTERS = [
+  {
+    forum: "Delhi High Court",
+    text: "Argued and secured a favourable order in a writ petition challenging an incorrect CLAT-UG question, before the Hon'ble Chief Justice of the Delhi High Court.",
+  },
+  {
+    forum: "Trial courts & tribunals",
+    text: "Landlord–tenant disputes, bail matters, matrimonial proceedings and Section 138 NI Act litigation across Delhi and Mumbai.",
+  },
+  {
+    forum: "Commercial & arbitration",
+    text: "Assisted in high-value commercial disputes and arbitrations concerning contractual breaches, construction claims and multi-jurisdictional challenges.",
+  },
+];
+
+const readDisclaimerAccepted = () => {
+  try {
+    return sessionStorage.getItem(DISCLAIMER_KEY) === "1";
+  } catch {
+    return false;
+  }
+};
+
+const SectionHeading = ({ index, eyebrow, title, light = false }) => (
+  <div className="space-y-4">
+    <p className={`eyebrow ${light ? "text-brass-light" : ""}`}>
+      <span className="tabular-nums">{index}</span>
+      <span className="mx-2 opacity-60">—</span>
+      {eyebrow}
+    </p>
+    <h2
+      className={`font-serif text-4xl md:text-5xl font-semibold leading-[1.1] tracking-tight ${
+        light ? "text-ivory" : "text-ink"
+      }`}
+    >
+      {title}
+    </h2>
+  </div>
+);
 
 const App = () => {
-  const [supabaseClient, setSupabaseClient] = useState(null);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
-  const [initStatus, setInitStatus] = useState("initializing");
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  // Bar Council of India rules: visitors must acknowledge the disclaimer before browsing
+  const [showDisclaimer, setShowDisclaimer] = useState(() => !readDisclaimerAccepted());
+  const [disclaimerCheckbox, setDisclaimerCheckbox] = useState(false);
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -49,53 +125,27 @@ const App = () => {
     query: "",
   });
 
-  // Resilient initialization logic for Supabase in a single file
   useEffect(() => {
-    let isMounted = true;
-
-    const loadSupabase = () => {
-      // 1. Get keys from Vite environment
-      let url = "";
-      let key = "";
-      try {
-        url = import.meta.env.VITE_SUPABASE_URL || "";
-        key = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
-      } catch (e) {
-        console.warn("Environment meta not accessible.");
-      }
-
-      // 2. Load Supabase via CDN for compatibility with Canvas preview
-      if (!window.supabase) {
-        const script = document.createElement("script");
-        script.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js";
-        script.async = true;
-        script.onload = () => {
-          if (isMounted && window.supabase && url && key) {
-            try {
-              const client = window.supabase.createClient(url, key);
-              setSupabaseClient(client);
-              setInitStatus("ready");
-            } catch (err) {
-              setInitStatus("error");
-            }
-          } else if (isMounted && !url) {
-            setInitStatus("missing_keys");
-          }
-        };
-        script.onerror = () => isMounted && setInitStatus("error");
-        document.body.appendChild(script);
-      } else if (url && key) {
-        const client = window.supabase.createClient(url, key);
-        setSupabaseClient(client);
-        setInitStatus("ready");
-      } else {
-        setInitStatus("missing_keys");
-      }
-    };
-
-    loadSupabase();
-    return () => { isMounted = false; };
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    const lock = isMenuOpen || showDisclaimer;
+    document.body.classList.toggle("menu-open", lock);
+    return () => document.body.classList.remove("menu-open");
+  }, [isMenuOpen, showDisclaimer]);
+
+  const acceptDisclaimer = () => {
+    try {
+      sessionStorage.setItem(DISCLAIMER_KEY, "1");
+    } catch {
+      // Storage unavailable (private mode); the disclaimer will show again next visit.
+    }
+    setShowDisclaimer(false);
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -107,18 +157,14 @@ const App = () => {
     setLoading(true);
     setError("");
 
-    if (!supabaseClient) {
-      if (initStatus === "missing_keys") {
-        setError("Setup Required: Please ensure your .env.local file is inside the 'yash-portfolio' folder and restart your terminal.");
-      } else {
-        setError("Database connection is initializing. Please try again in a few seconds.");
-      }
+    if (!supabase) {
+      setError(`The enquiry form is temporarily unavailable. Please write to ${EMAIL}.`);
       setLoading(false);
       return;
     }
 
     try {
-      const { error: dbError } = await supabaseClient.from("inquiries").insert([
+      const { error: dbError } = await supabase.from("inquiries").insert([
         {
           full_name: formData.fullName,
           email: formData.email,
@@ -131,195 +177,260 @@ const App = () => {
 
       if (dbError) throw dbError;
       setSubmitted(true);
-      
+      setFormData({ fullName: "", email: "", phone: "", subject: "Legal Consultation", query: "" });
     } catch (err) {
       console.error("Submission error:", err);
-      setError(`Storage Error: ${err.message || "Failed to reach database. Check table 'inquiries' and RLS policies."}`);
+      setError(`We couldn't send your enquiry. Please try again or write to ${EMAIL}.`);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#fcfcfd] text-slate-900 scroll-smooth font-sans selection:bg-blue-100 selection:text-blue-900">
-      
-      {/* NAVIGATION */}
-      <nav className="fixed top-0 w-full bg-white/70 backdrop-blur-xl border-b border-slate-200 z-50 transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="bg-[#0f172a] p-2.5 rounded-xl text-white shadow-lg">
-              <Scale size={24}/>
-            </div>
-            <div>
-              <p className="font-bold text-slate-900 text-lg leading-tight tracking-tight uppercase">YASH DADRIWAL</p>
-              <p className="text-[10px] text-blue-600 uppercase tracking-[0.2em] font-black">Advocate & Legal Consultant</p>
+    <div className="relative min-h-screen bg-ivory text-ink">
+      {/* LEGAL DISCLAIMER MODAL */}
+      {showDisclaimer && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6">
+          <div className="absolute inset-0 bg-ink/70 backdrop-blur-sm" />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="disclaimer-title"
+            className="relative w-full max-w-2xl bg-ivory shadow-2xl animate-fade-in-up"
+          >
+            <div className="h-1 bg-brass" />
+            <div className="p-7 md:p-12">
+              <div className="flex items-center gap-3 mb-6">
+                <Scale size={22} className="text-brass" strokeWidth={1.5} />
+                <h2 id="disclaimer-title" className="font-serif text-3xl font-semibold">
+                  Disclaimer
+                </h2>
+              </div>
+
+              <div className="space-y-4 text-[15px] text-ink-muted leading-relaxed max-h-[45vh] overflow-y-auto pr-2">
+                <p>
+                  The Bar Council of India does not permit advertisement or solicitation by advocates in any form or
+                  manner. By accessing this website, you acknowledge and confirm that you are seeking information relating
+                  to <strong className="text-ink font-semibold">Yash Dadriwal</strong> of your own accord and that there
+                  has been no form of solicitation, advertisement or inducement by Yash Dadriwal or his office.
+                </p>
+                <p>
+                  The content of this website is for informational purposes only and should not be interpreted as
+                  soliciting or advertisement. No material or information provided on this website should be construed as
+                  legal advice. Yash Dadriwal shall not be liable for consequences of any action taken by relying on the
+                  material or information provided on this website.
+                </p>
+                <p>The contents of this website are the intellectual property of Yash Dadriwal.</p>
+              </div>
+
+              <div className="mt-8 pt-6 border-t border-rule flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <span className="relative flex items-center">
+                    <input
+                      type="checkbox"
+                      className="peer h-5 w-5 cursor-pointer appearance-none border border-ink/40 bg-white transition-colors checked:border-ink checked:bg-ink"
+                      checked={disclaimerCheckbox}
+                      onChange={(e) => setDisclaimerCheckbox(e.target.checked)}
+                    />
+                    <Check
+                      className="absolute left-1/2 top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 text-ivory opacity-0 peer-checked:opacity-100 pointer-events-none"
+                      strokeWidth={3}
+                    />
+                  </span>
+                  <span className="text-sm text-ink">I have read and accept the above.</span>
+                </label>
+
+                <button onClick={acceptDisclaimer} disabled={!disclaimerCheckbox} className="btn-primary">
+                  Proceed to website <ArrowRight size={16} />
+                </button>
+              </div>
             </div>
           </div>
-          
-          <div className="hidden md:flex gap-10 text-[11px] font-black text-slate-500 uppercase tracking-widest">
-            <a href="#about" className="hover:text-blue-700 transition-colors">About</a>
-            <a href="#expertise" className="hover:text-blue-700 transition-colors">Expertise</a>
-            <a href="#reviews" className="hover:text-blue-700 transition-colors">Reviews</a>
-            <a href="#contact" className="bg-[#0f172a] text-white px-7 py-2.5 rounded-full hover:bg-blue-800 transition-all shadow-xl hover:-translate-y-0.5">Consult Now</a>
+        </div>
+      )}
+
+      {/* NAVIGATION */}
+      <nav
+        className={`fixed top-0 inset-x-0 z-50 bg-ivory/95 backdrop-blur transition-[border-color,box-shadow] ${
+          scrolled ? "border-b border-rule shadow-[0_1px_0_rgba(11,26,46,0.03)]" : "border-b border-transparent"
+        }`}
+      >
+        <div className="max-w-6xl mx-auto px-5 md:px-8 h-[72px] flex items-center justify-between">
+          <a href="#top" className="flex items-baseline gap-3" onClick={() => setIsMenuOpen(false)}>
+            <span className="font-serif text-2xl font-semibold tracking-tight text-ink">Yash P. Dadriwal</span>
+            <span className="hidden sm:inline text-[11px] uppercase tracking-[0.22em] text-brass font-semibold">
+              Advocate
+            </span>
+          </a>
+
+          <div className="hidden md:flex items-center gap-9">
+            {NAV_LINKS.slice(0, 3).map((link) => (
+              <a key={link.href} href={link.href} className="nav-link">
+                {link.label}
+              </a>
+            ))}
+            <a href="#contact" className="btn-outline !py-2.5 !px-5">
+              Contact
+            </a>
+          </div>
+
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="md:hidden -mr-2 p-2 text-ink"
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isMenuOpen}
+          >
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+
+        {/* MOBILE MENU */}
+        <div
+          className={`md:hidden fixed inset-x-0 top-[72px] bottom-0 bg-ivory transition-[opacity,visibility] duration-300 ${
+            isMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"
+          }`}
+        >
+          <div className="px-5 pt-6">
+            {NAV_LINKS.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={() => setIsMenuOpen(false)}
+                className="flex items-center justify-between py-5 border-b border-rule font-serif text-3xl font-semibold"
+              >
+                {link.label}
+                <ArrowRight size={20} className="text-brass" />
+              </a>
+            ))}
           </div>
         </div>
       </nav>
 
-      {/* HERO SECTION */}
-      <header className="pt-48 pb-32 bg-[#020617] text-white relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_30%,rgba(37,99,235,0.15),transparent_50%)]" />
-        <div className="absolute -bottom-24 -left-24 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
-
-        <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-20 items-center relative z-10">
-          <div className="space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
-            <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 px-4 py-2 rounded-full text-blue-400 text-[10px] font-black uppercase tracking-widest">
-              <Sparkles size={12} className="animate-pulse"/> NLU Alumnus • Strategic Litigation
-            </div>
-
-            <h1 className="text-6xl md:text-[5.5rem] font-serif font-medium leading-[1] tracking-tight text-white">
-              Precision <br />
-              <span className="text-blue-500 font-bold not-italic">In Legal Strategy.</span>
+      {/* HERO */}
+      <header id="top" className="pt-[72px]">
+        <div className="max-w-6xl mx-auto px-5 md:px-8 pt-12 md:pt-24 pb-16 md:pb-24 grid md:grid-cols-12 gap-12 md:gap-10 items-center">
+          <div className="md:col-span-7 space-y-8 animate-fade-in-up">
+            <p className="eyebrow">Advocate · Delhi &amp; Mumbai</p>
+            <h1 className="font-serif text-[2.75rem] leading-[1.05] sm:text-6xl lg:text-[4.5rem] font-semibold tracking-tight text-ink text-balance">
+              Disputes counsel before the High Courts of Delhi and Bombay.
             </h1>
-
-            <p className="text-slate-400 max-w-lg text-xl leading-relaxed font-light">
-              Practising across <span className="text-white font-medium">Delhi & Mumbai</span>. Specialized in Civil, Commercial, and Criminal litigation with a results-oriented approach.
+            <p className="max-w-xl text-lg leading-relaxed text-ink-muted">
+              An independent litigation practice in civil, commercial and criminal matters — built on careful drafting,
+              thorough research and clear oral advocacy.
             </p>
-
-            <div className="flex flex-wrap gap-6 pt-4">
-              <a href="#contact" className="bg-blue-600 px-12 py-5 rounded-2xl font-bold hover:bg-blue-500 transition-all shadow-2xl flex items-center gap-3 group text-white">
-                Book Consultation <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform"/>
+            <div className="flex flex-wrap items-center gap-4 pt-2">
+              <a href="#contact" className="btn-primary">
+                Send an enquiry <ArrowRight size={16} />
               </a>
-              <a href="https://www.linkedin.com/in/yash-dadriwal-8a30161b2/" target="_blank" rel="noreferrer" className="bg-white/5 border border-white/10 px-10 py-5 rounded-2xl font-bold hover:bg-white/10 transition-all flex items-center gap-2 backdrop-blur-sm text-white">
-                <Linkedin size={20} className="text-blue-400"/> LinkedIn Profile
+              <a href={LINKEDIN_URL} target="_blank" rel="noreferrer" className="btn-outline">
+                <Linkedin size={16} /> LinkedIn
               </a>
             </div>
           </div>
 
-          <div className="hidden md:flex justify-end animate-in fade-in zoom-in duration-1000">
-            <div className="bg-gradient-to-br from-slate-800/50 to-slate-950 p-12 rounded-[3.5rem] shadow-2xl border border-white/5 text-center relative max-w-md backdrop-blur-md">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-600 p-5 rounded-[1.5rem] shadow-xl">
-                <ScaleIcon size={44} className="text-white"/>
-              </div>
-              <Quote size={50} className="text-blue-500/10 absolute bottom-10 right-10" />
-              <p className="italic text-3xl font-bold text-slate-100 leading-tight pt-6">
-                "Integrity is the cornerstone of Justice."
-              </p>
-              <div className="mt-12">
-                <p className="text-blue-400 text-sm font-black uppercase tracking-[0.4em]">Adv. Yash Dadriwal</p>
-                <p className="text-slate-500 text-[15px] mt-3 font-bold leading-relaxed uppercase tracking-widest">
-                  B.A.LL.B (Hons.), LL.M.<br/> UGC-NET(LAW)
-                </p>
-              </div>
-            </div>
+          <div className="md:col-span-5 animate-fade-in-up [animation-delay:150ms]">
+            <figure className="relative mx-auto max-w-[360px] md:max-w-none">
+              <div className="absolute -right-3 -bottom-3 md:-right-5 md:-bottom-5 inset-0 border border-brass/60" aria-hidden="true" />
+              <img
+                src={portraitPhoto}
+                alt="Advocate Yash Dadriwal outside the Supreme Court of India"
+                className="relative w-full aspect-[4/5] object-cover object-[50%_35%] bg-ivory-deep"
+              />
+            </figure>
           </div>
+        </div>
+
+        {/* CREDENTIALS STRIP */}
+        <div className="border-y border-rule bg-ivory-deep/60">
+          <dl className="max-w-6xl mx-auto px-5 md:px-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+            {CREDENTIALS.map((item, i) => (
+              <div
+                key={item.label}
+                className={`py-6 lg:py-8 lg:px-6 first:lg:pl-0 border-rule ${
+                  i > 0 ? "border-t sm:border-t-0" : ""
+                } ${i >= 2 ? "sm:border-t lg:border-t-0" : ""} ${i % 2 === 1 ? "sm:pl-6 sm:border-l lg:pl-6" : ""} ${
+                  i === 2 ? "lg:border-l" : ""
+                }`}
+              >
+                <dt className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brass">{item.label}</dt>
+                <dd className="mt-2 text-[15px] leading-snug text-ink">{item.value}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </header>
 
-      {/* ABOUT SECTION - THE PROFESSIONAL BIO */}
-      <section id="about" className="py-32 bg-white relative overflow-hidden border-b border-slate-100">
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="grid md:grid-cols-12 gap-16 items-start">
-            <div className="md:col-span-4 space-y-8">
-              <div className="space-y-4">
-                <h2 className="text-4xl font-serif font-bold text-slate-900 tracking-tight">About the <br />Advocate</h2>
-                <div className="h-1 w-20 bg-blue-600 rounded-full"></div>
-              </div>
-              
-              <div className="space-y-4">
-                {[
-                  { icon: Award, label: "Enrollment", val: "Maharashtra & Goa Bar (2023)" },
-                  { icon: BookOpen, label: "Qualifications", val: "B.A.LL.B (Hons),LL.M.(Corporate & Commercial Law)" },
-                  { icon: BookOpen, label: "Credentials", val: "UGC-NET (Law)" },
-                  { icon: MapPin, label: "Jurisdictions", val: "Delhi & Mumbai" }
-                ].map((item, idx) => (
-                  <div key={idx} className="flex items-start gap-4 p-5 bg-slate-50 rounded-3xl border border-slate-100 group hover:border-blue-200 transition-all">
-                    <div className="bg-white p-2.5 rounded-xl text-blue-600 shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-all">
-                      <item.icon size={22} />
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{item.label}</p>
-                      <p className="text-sm font-bold text-slate-800">{item.val}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+      {/* ABOUT */}
+      <section id="about" className="py-20 md:py-32">
+        <div className="max-w-6xl mx-auto px-5 md:px-8 grid lg:grid-cols-12 gap-12 lg:gap-16">
+          <div className="lg:col-span-5 space-y-10">
+            <SectionHeading index="01" eyebrow="About" title="A practice grounded in the courtroom." />
+            <img
+              src={chambersPhoto}
+              alt="Advocate Yash Dadriwal in chambers"
+              loading="lazy"
+              className="w-full aspect-[4/3] object-cover object-[48%_30%] bg-ivory-deep"
+            />
+          </div>
 
-            <div className="md:col-span-8 space-y-10">
-              <div className="prose prose-slate max-w-none">
-                <p className="text-xl text-slate-700 leading-relaxed font-light">
-                  <span className="font-bold text-blue-900">Yash P. Dadriwal</span> is a disputes lawyer practising across Delhi and Mumbai, with a focused practice in civil, commercial and criminal litigation. An alumnus of <span className="font-semibold text-slate-950 underline decoration-blue-500/30">National Law University, Aurangabad</span> and <span className="font-semibold text-slate-950 underline decoration-blue-500/30">National Law University, Mumbai</span>, he combines strong academic grounding with hands-on courtroom experience before constitutional courts, tribunals and district courts.
-                </p>
-                
-                <p className="text-slate-600 leading-relaxed py-2">
-                  Yash maintains an independent litigation practice, regularly appearing before the <span className="font-medium text-slate-900">Delhi High Court</span> and the <span className="font-medium text-slate-900">Bombay High Court</span>, as well as various district courts and tribunals. His independent work reflects a results-oriented and strategy-driven approach to dispute resolution.
-                </p>
+          <div className="lg:col-span-7 lg:pt-16 space-y-6 text-[17px] md:text-lg leading-[1.8] text-ink-muted">
+            <p className="font-serif text-2xl md:text-[1.75rem] leading-snug text-ink">
+              Yash P. Dadriwal is a disputes lawyer practising across Delhi and Mumbai, with a focused practice in civil,
+              commercial and criminal litigation.
+            </p>
+            <p>
+              An alumnus of <span className="text-ink font-medium">National Law University, Aurangabad</span> and{" "}
+              <span className="text-ink font-medium">National Law University, Mumbai</span>, he combines strong academic
+              grounding with hands-on courtroom experience before constitutional courts, tribunals and district courts.
+            </p>
+            <p>
+              Yash maintains an independent litigation practice, regularly appearing before the{" "}
+              <span className="text-ink font-medium">Delhi High Court</span> and the{" "}
+              <span className="text-ink font-medium">Bombay High Court</span>, as well as various district courts and
+              tribunals. His work reflects a strategy-driven approach to dispute resolution.
+            </p>
+            <p>
+              His exposure extends to high-value commercial disputes and arbitration, including contractual breaches,
+              construction arbitrations and multi-jurisdictional legal challenges.
+            </p>
 
-                <div className="grid md:grid-cols-2 gap-8 my-8">
-                  <div className="p-8 bg-blue-50/50 rounded-[2.5rem] border border-blue-100 space-y-4">
-                    <div className="flex items-center gap-2 text-blue-800 font-bold uppercase text-[10px] tracking-widest">
-                      <History size={16} /> Notable Successes
-                    </div>
-                    <p className="text-sm text-slate-600 leading-relaxed">
-                      Successfully argued and secured a favourable order in a <span className="font-semibold text-blue-950">writ petition challenging a CLAT-UG question</span> before the Hon'ble Chief Justice of the Delhi High Court.
-                    </p>
-                  </div>
-                  <div className="p-8 bg-slate-900 rounded-[2.5rem] text-white space-y-4 shadow-2xl">
-                    <div className="flex items-center gap-2 text-blue-400 font-bold uppercase text-[10px] tracking-widest">
-                      <Shield size={16} /> Complex Matters
-                    </div>
-                    <p className="text-sm text-slate-300 leading-relaxed">
-                      Represented clients in <span className="text-white font-medium">landlord–tenant revisions</span>, Section 138 NI Act matters, and secured interim protections in sensitive <span className="text-white">Section 498A IPC</span> criminal proceedings.
-                    </p>
-                  </div>
-                </div>
-
-                <p className="text-slate-600 leading-relaxed">
-                  His exposure extends to <span className="font-medium text-slate-900">high-stakes commercial disputes</span> and arbitration. He has assisted in construction arbitrations concerning breach of contract and project abandonment, as well as multi-jurisdictional defaults under collateral management arrangements.
-                </p>
-
-                <p className="text-slate-600 leading-relaxed pt-4 border-t border-slate-100 mt-8 font-serif italic text-lg">
-                  "Defining the path to justice through meticulous drafting, thorough research, and effective oral advocacy."
-                </p>
-              </div>
-            </div>
+            <blockquote className="mt-10 border-l-2 border-brass pl-6 py-1">
+              <p className="font-serif italic text-2xl leading-snug text-ink">
+                “Defining the path to justice through meticulous drafting, thorough research, and effective oral
+                advocacy.”
+              </p>
+            </blockquote>
           </div>
         </div>
       </section>
 
-      {/* EXPERTISE SECTION */}
-      <section id="expertise" className="py-32 bg-slate-50 relative">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <h2 className="text-5xl font-serif font-bold text-slate-900 mb-20">Practice Specializations</h2>
-          <div className="grid md:grid-cols-3 gap-12 text-left">
-            {[
-              { 
-                title: "Civil & Commercial", 
-                icon: Briefcase, 
-                list: ["Landlord-Tenant Disputes", "Contractual Breaches", "Revision Petitions", "Real Estate (RERA)"] 
-              },
-              { 
-                title: "Criminal & Matrimonial", 
-                icon: Gavel, 
-                list: ["Section 138 NI Act", "Section 498A IPC Matters", "Interim Protections", "White Collar Defense"] 
-              },
-              { 
-                title: "Arbitration & ADR", 
-                icon: ScaleIcon, 
-                list: ["Construction Disputes", "Multi-jurisdictional Defaults", "Mediation Advocacy", "Domestic/Intl Arbitration"] 
-              }
-            ].map((item, i) => (
-              <div key={i} className="group bg-white p-10 rounded-[3rem] border border-slate-100 hover:shadow-2xl transition-all duration-500">
-                <div className="bg-blue-50 w-16 h-16 rounded-2xl flex items-center justify-center mb-8 text-blue-900 group-hover:bg-blue-900 group-hover:text-white transition-colors duration-300">
-                  <item.icon size={30}/>
-                </div>
-                <h3 className="text-2xl font-bold mb-6 text-slate-900">{item.title}</h3>
-                <ul className="space-y-3">
-                   {item.list.map((li, idx) => (
-                     <li key={idx} className="flex items-center gap-2 text-sm text-slate-500">
-                        <Check size={14} className="text-blue-600" /> {li}
-                     </li>
-                   ))}
+      {/* PRACTICE AREAS */}
+      <section id="practice" className="py-20 md:py-32 bg-ink text-ivory">
+        <div className="max-w-6xl mx-auto px-5 md:px-8">
+          <div className="grid md:grid-cols-2 gap-8 items-end mb-14 md:mb-20">
+            <SectionHeading index="02" eyebrow="Practice" title="Areas of practice" light />
+            <p className="text-ivory/60 leading-relaxed md:text-right md:max-w-sm md:ml-auto">
+              Advisory and advocacy across trial courts, High Courts and arbitral tribunals.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 border-t border-ivory/15">
+            {PRACTICE_AREAS.map((area, i) => (
+              <div
+                key={area.title}
+                className={`pt-8 pb-10 md:pb-0 md:px-8 first:md:pl-0 last:md:pr-0 ${
+                  i > 0 ? "border-t md:border-t-0 md:border-l border-ivory/15" : ""
+                }`}
+              >
+                <p className="font-serif text-brass-light text-lg tabular-nums">0{i + 1}</p>
+                <h3 className="mt-2 font-serif text-3xl font-semibold">{area.title}</h3>
+                <ul className="mt-6 space-y-3">
+                  {area.list.map((item) => (
+                    <li key={item} className="flex gap-3 text-[15px] text-ivory/75 leading-snug">
+                      <span className="mt-2 h-px w-3 shrink-0 bg-brass-light" aria-hidden="true" />
+                      {item}
+                    </li>
+                  ))}
                 </ul>
               </div>
             ))}
@@ -327,229 +438,200 @@ const App = () => {
         </div>
       </section>
 
-      {/* REVIEWS SECTION */}
-      <section id="reviews" className="py-32 bg-white relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl font-serif font-bold text-slate-900">Client Experiences</h2>
-            <p className="text-blue-600 mt-4 uppercase tracking-[0.3em] text-[10px] font-black">Professional Peer & Client Feedback</p>
+      {/* SELECT MATTERS */}
+      <section id="matters" className="py-20 md:py-32">
+        <div className="max-w-6xl mx-auto px-5 md:px-8 grid lg:grid-cols-12 gap-12">
+          <div className="lg:col-span-4">
+            <SectionHeading index="03" eyebrow="Experience" title="Select matters" />
           </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { 
-                text: "Advocate Yash provided exceptional clarity on a complex property dispute. His research is meticulous and his court strategy is incredibly sharp.",
-                client: "S. K. Verma",
-                role: "Director, Real Estate Group"
-              },
-              { 
-                text: "Incredibly professional and approachable. He handled our corporate ADR matter with such precision that we reached a settlement within weeks.",
-                client: "Megha Singhania",
-                role: "Legal Head, Tech Firm"
-              },
-              { 
-                text: "Efficient, empathetic, and effective. His knowledge of the RERA framework saved our family from years of potential litigation. Highly recommend.",
-                client: "Amit Dadwal",
-                role: "Individual Client"
-              }
-            ].map((review, i) => (
-              <div key={i} className="bg-slate-50 p-10 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-xl transition-all group duration-500">
-                <div className="flex gap-1 text-yellow-500 mb-8">
-                  {[...Array(5)].map((_, j) => <Star key={j} size={16} fill="currentColor" />)}
-                </div>
-                <p className="text-slate-600 leading-relaxed italic text-sm mb-10 font-medium italic">"{review.text}"</p>
-                <div className="flex items-center gap-4">
-                  <div className="bg-white p-3 rounded-full text-blue-900 font-bold text-xs uppercase tracking-widest border border-slate-100 shadow-sm">
-                    {review.client.split(' ').map(n => n[0]).join('')}
-                  </div>
-                  <div>
-                    <p className="font-bold text-slate-900">{review.client}</p>
-                    <p className="text-[10px] uppercase font-black text-slate-400 tracking-tighter">{review.role}</p>
-                  </div>
-                </div>
-              </div>
+          <ol className="lg:col-span-8 border-t border-rule">
+            {MATTERS.map((matter) => (
+              <li key={matter.forum} className="grid sm:grid-cols-[200px_1fr] gap-2 sm:gap-8 py-8 border-b border-rule">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brass sm:pt-1.5">
+                  {matter.forum}
+                </p>
+                <p className="text-[17px] leading-relaxed text-ink">{matter.text}</p>
+              </li>
             ))}
-          </div>
+          </ol>
         </div>
       </section>
 
-      {/* CONTACT SECTION */}
-      <section id="contact" className="py-32 bg-[#020617] text-white">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="bg-white text-slate-900 rounded-[4rem] p-10 md:p-20 shadow-3xl relative overflow-hidden border border-white/5">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50/30 blur-[100px] -mr-32 -mt-32 rounded-full" />
-            
-            <div className="grid md:grid-cols-5 gap-20 relative z-10">
-              <div className="md:col-span-2 space-y-10">
-                <h2 className="text-5xl font-serif font-bold text-slate-900 leading-tight">Begin Your <br />Consultation</h2>
-                <p className="text-slate-500 leading-relaxed text-lg font-light">
-                  Submit your details securely. Advocate Dadriwal's office will review your case and respond within 24 business hours.
-                </p>
-                
-                <div className="space-y-6 pt-6">
-                  <div className="flex items-center gap-5 group cursor-pointer" onClick={() => window.location.href='mailto:advyashdadriwal@gmail.com'}>
-                    <div className="bg-blue-50 p-4 rounded-2xl text-blue-950 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                      <Mail size={22}/>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Email Address</p>
-                      <p className="font-bold text-slate-900">advyashdadriwal@gmail.com</p>
-                    </div>
+      {/* CONTACT */}
+      <section id="contact" className="py-20 md:py-32 bg-ivory-deep/60 border-t border-rule">
+        <div className="max-w-6xl mx-auto px-5 md:px-8 grid lg:grid-cols-12 gap-14 lg:gap-16">
+          <div className="lg:col-span-5 space-y-10">
+            <SectionHeading index="04" eyebrow="Contact" title="Get in touch" />
+            <p className="text-ink-muted leading-relaxed max-w-md">
+              Share a brief outline of your matter and the office will respond, ordinarily within one working day.
+              Please do not send confidential documents through this form.
+            </p>
+
+            <ul className="space-y-6">
+              <li>
+                <a href={`mailto:${EMAIL}`} className="group flex items-start gap-4">
+                  <Mail size={18} className="mt-1 text-brass shrink-0" strokeWidth={1.75} />
+                  <span className="min-w-0">
+                    <span className="field-label">Email</span>
+                    <span className="mt-1 block text-ink break-all group-hover:underline underline-offset-4 decoration-brass">
+                      {EMAIL}
+                    </span>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href={LINKEDIN_URL} target="_blank" rel="noreferrer" className="group flex items-start gap-4">
+                  <Linkedin size={18} className="mt-1 text-brass shrink-0" strokeWidth={1.75} />
+                  <span>
+                    <span className="field-label">LinkedIn</span>
+                    <span className="mt-1 inline-flex items-center gap-1 text-ink group-hover:underline underline-offset-4 decoration-brass">
+                      Yash Dadriwal <ArrowUpRight size={14} />
+                    </span>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href={MAPS_URL} target="_blank" rel="noreferrer" className="group flex items-start gap-4">
+                  <MapPin size={18} className="mt-1 text-brass shrink-0" strokeWidth={1.75} />
+                  <span>
+                    <span className="field-label">Chambers</span>
+                    <span className="mt-1 block text-ink leading-relaxed group-hover:underline underline-offset-4 decoration-brass">
+                      1st Floor, F-17, Jungpura Extension
+                      <br />
+                      New Delhi – 110014
+                    </span>
+                  </span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div className="lg:col-span-7">
+            <div className="bg-ivory border border-rule p-6 sm:p-10 md:p-12">
+              {submitted ? (
+                <div className="py-12 text-center animate-fade-in-up">
+                  <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center border border-brass text-brass">
+                    <Check size={26} />
                   </div>
-                  <div className="flex items-center gap-5 group cursor-pointer" onClick={() => window.open('https://www.linkedin.com/in/yash-dadriwal-8a30161b2/', '_blank')}>
-                    <div className="bg-blue-50 p-4 rounded-2xl text-blue-950 group-hover:bg-[#0077b5] group-hover:text-white transition-all">
-                      <Linkedin size={22}/>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">LinkedIn Profile</p>
-                      <p className="font-bold text-slate-900 underline decoration-blue-500/30">Adv. Yash Dadriwal</p>
-                    </div>
-                  </div>
+                  <h3 className="font-serif text-3xl font-semibold">Thank you</h3>
+                  <p className="mt-3 text-ink-muted max-w-sm mx-auto">
+                    Your enquiry has been received. The office will be in touch shortly.
+                  </p>
+                  <button
+                    onClick={() => setSubmitted(false)}
+                    className="mt-8 text-sm text-ink underline underline-offset-4 decoration-brass hover:text-brass"
+                  >
+                    Send another enquiry
+                  </button>
                 </div>
-              </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-8">
+                  <div className="grid sm:grid-cols-2 gap-8">
+                    <label className="block">
+                      <span className="field-label">Full name</span>
+                      <input
+                        name="fullName"
+                        autoComplete="name"
+                        required
+                        value={formData.fullName}
+                        onChange={handleInputChange}
+                        className="field"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="field-label">Phone</span>
+                      <input
+                        name="phone"
+                        type="tel"
+                        autoComplete="tel"
+                        placeholder="+91"
+                        required
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        className="field"
+                      />
+                    </label>
+                  </div>
 
-              <div className="md:col-span-3">
-                <div className="bg-slate-50 rounded-[3rem] p-8 md:p-12 border border-slate-200 shadow-inner">
-                  {submitted ? (
-                    <div className="text-center py-20 animate-in fade-in zoom-in">
-                      <div className="bg-green-100 p-8 rounded-full w-fit mx-auto mb-8 shadow-lg shadow-green-100">
-                        <CheckCircle size={56} className="text-green-600"/>
-                      </div>
-                      <h3 className="text-3xl font-serif font-bold text-slate-900">Request Received</h3>
-                      <p className="text-slate-500 mt-5 max-w-xs mx-auto font-medium">
-                        Your inquiry has been stored in our Supabase database. We will be in touch shortly.
-                      </p>
-                      <button onClick={() => setSubmitted(false)} className="mt-8 text-blue-600 font-bold hover:underline text-sm">Send another request</button>
+                  <label className="block">
+                    <span className="field-label">Email</span>
+                    <input
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className="field"
+                    />
+                  </label>
+
+                  <label className="block">
+                    <span className="field-label">Brief description of your matter</span>
+                    <textarea
+                      name="query"
+                      rows="5"
+                      required
+                      value={formData.query}
+                      onChange={handleInputChange}
+                      className="field resize-none"
+                    />
+                  </label>
+
+                  {error && (
+                    <div className="flex items-start gap-2 border-l-2 border-red-700 bg-red-50 px-4 py-3 text-sm text-red-800">
+                      <AlertCircle size={16} className="mt-0.5 shrink-0" />
+                      <span>{error}</span>
                     </div>
-                  ) : (
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                      <div className="grid md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-2 flex justify-between items-center">
-                            Full Name
-                            {initStatus === "missing_keys" && (
-                              <span className="text-[8px] text-amber-600 animate-pulse">⚠️ Check .env.local</span>
-                            )}
-                          </label>
-                          <input
-                            name="fullName"
-                            placeholder="e.g. John Doe"
-                            required
-                            value={formData.fullName}
-                            onChange={handleInputChange}
-                            className="w-full bg-white border border-slate-200 p-5 rounded-2xl outline-none focus:ring-4 focus:ring-blue-100 transition-all font-medium text-slate-800 shadow-sm"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-2">Phone Number</label>
-                          <input
-                            name="phone"
-                            type="tel"
-                            placeholder="+91..."
-                            required
-                            value={formData.phone}
-                            onChange={handleInputChange}
-                            className="w-full bg-white border border-slate-200 p-5 rounded-2xl outline-none focus:ring-4 focus:ring-blue-100 transition-all font-medium text-slate-800 shadow-sm"
-                          />
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-2">Email Address</label>
-                        <input
-                          name="email"
-                          type="email"
-                          placeholder="client@mail.com"
-                          required
-                          value={formData.email}
-                          onChange={handleInputChange}
-                          className="w-full bg-white border border-slate-200 p-5 rounded-2xl outline-none focus:ring-4 focus:ring-blue-100 transition-all font-medium text-slate-800 shadow-sm"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-2">Legal Query Detail</label>
-                        <textarea
-                          name="query"
-                          rows="4"
-                          placeholder="Briefly describe your legal concern..."
-                          required
-                          value={formData.query}
-                          onChange={handleInputChange}
-                          className="w-full bg-white border border-slate-200 p-5 rounded-2xl outline-none focus:ring-4 focus:ring-blue-100 transition-all resize-none font-medium text-slate-800 shadow-sm"
-                        />
-                      </div>
-
-                      {error && (
-                        <div className="flex items-center gap-2 text-red-600 bg-red-50 p-4 rounded-2xl text-xs font-bold border border-red-100 shadow-sm">
-                          <AlertCircle size={16} />
-                          <span>{error}</span>
-                        </div>
-                      )}
-
-                      <button
-                        type="submit"
-                        disabled={loading || initStatus === "initializing"}
-                        className="w-full bg-[#0f172a] text-white py-6 rounded-[1.5rem] font-bold text-lg hover:bg-blue-900 transition-all shadow-2xl active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3 group"
-                      >
-                        {loading || initStatus === "initializing" ? (
-                          <Loader2 className="animate-spin" />
-                        ) : (
-                          <>
-                            Register Lead <Send size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                          </>
-                        )}
-                      </button>
-                      <p className="text-[9px] text-center text-slate-400 font-bold uppercase tracking-widest pt-2">
-                        <Shield size={12} className="inline mr-1 text-blue-900" /> Secure Supabase Encryption active
-                      </p>
-                    </form>
                   )}
-                </div>
-              </div>
+
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
+                    <p className="text-xs text-ink-muted max-w-xs leading-relaxed">
+                      Submitting this form does not create an advocate–client relationship.
+                    </p>
+                    <button type="submit" disabled={loading} className="btn-primary min-w-[180px]">
+                      {loading ? (
+                        <Loader2 size={18} className="animate-spin" />
+                      ) : (
+                        <>
+                          Send enquiry <ArrowRight size={16} />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              )}
             </div>
           </div>
         </div>
       </section>
 
-      {/* FLOATING ACTION BUTTON */}
-      <a
-        href="#contact"
-        className="fixed bottom-8 right-8 z-40 bg-blue-600 text-white px-8 py-4 rounded-full shadow-[0_20px_50px_rgba(37,99,235,0.4)] hover:bg-blue-700 hover:scale-110 transition-all flex gap-3 items-center font-bold text-sm active:scale-95"
-      >
-        <Phone size={20}/> Consult Now
-      </a>
-
       {/* FOOTER */}
-      <footer className="py-32 bg-white text-center border-t border-slate-100">
-        <div className="max-w-7xl mx-auto px-6">
-          <ScaleIcon size={40} className="mx-auto text-[#0f172a] mb-8"/>
-          <p className="font-serif font-bold text-3xl text-slate-950 tracking-tight uppercase">Yash Dadriwal</p>
-          <div className="flex items-center justify-center gap-3 mt-4">
-             <Award size={16} className="text-blue-600" />
-             <p className="text-[10px] uppercase tracking-[0.5em] text-slate-400 font-black">Justice • Integrity • Excellence</p>
+      <footer className="bg-ink text-ivory/60">
+        <div className="max-w-6xl mx-auto px-5 md:px-8 py-12 flex flex-col md:flex-row md:items-center md:justify-between gap-8">
+          <div>
+            <p className="font-serif text-2xl font-semibold text-ivory">Yash P. Dadriwal</p>
+            <p className="mt-1 text-[11px] uppercase tracking-[0.22em] text-brass-light">Advocate · Delhi &amp; Mumbai</p>
           </div>
-          
-          <div className="flex justify-center gap-12 mt-12">
-            <a href="https://www.linkedin.com/in/yash-dadriwal-8a30161b2/" target="_blank" rel="noreferrer" className="text-slate-400 hover:text-blue-600 transition-all hover:scale-125">
-              <Linkedin size={24}/>
+          <div className="flex items-center gap-6">
+            <a href={LINKEDIN_URL} target="_blank" rel="noreferrer" aria-label="LinkedIn" className="hover:text-ivory transition-colors">
+              <Linkedin size={20} />
             </a>
-            <a href="mailto:advyashdadriwal@gmail.com" className="text-slate-400 hover:text-blue-600 transition-all hover:scale-125">
-              <Mail size={24}/>
+            <a href={`mailto:${EMAIL}`} aria-label="Email" className="hover:text-ivory transition-colors">
+              <Mail size={20} />
+            </a>
+            <a href={MAPS_URL} target="_blank" rel="noreferrer" aria-label="Chambers on Google Maps" className="hover:text-ivory transition-colors">
+              <MapPin size={20} />
             </a>
           </div>
-          
-          <div className="mt-20 pt-10 border-t border-slate-50 flex flex-col md:flex-row justify-between items-center gap-6">
-             <p className="text-[10px] text-slate-300 font-black uppercase tracking-widest">
-                © {new Date().getFullYear()} Yash Dadriwal. All rights reserved.
-             </p>
-             <div className="flex gap-8 text-[10px] text-slate-400 font-bold uppercase tracking-tighter">
-                <a href="#" className="hover:text-blue-600">Privacy Policy</a>
-                <a href="#" className="hover:text-blue-600">Legal Notice</a>
-                <a href="#" className="hover:text-blue-600">Site Map</a>
-             </div>
+        </div>
+        <div className="border-t border-ivory/10">
+          <div className="max-w-6xl mx-auto px-5 md:px-8 py-6 flex flex-col md:flex-row md:justify-between gap-2 text-xs">
+            <p>© {new Date().getFullYear()} Yash Dadriwal. All rights reserved.</p>
+            <p>This website is for information only and does not constitute legal advice or solicitation.</p>
           </div>
         </div>
       </footer>
-
     </div>
   );
 };
