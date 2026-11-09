@@ -21,7 +21,8 @@ const EMAIL = "advyashdadriwal@gmail.com";
 const LINKEDIN_URL = "https://www.linkedin.com/in/yash-dadriwal-8a30161b2/";
 const MAPS_URL =
   "https://www.google.com/maps/place/F-17,+Jangpura,+Block+F,+Jungpura+Extension,+New+Delhi,+Delhi+110014/@28.5812089,77.2382263,17z/data=!3m1!4b1!4m6!3m5!1s0x390ce30060c48ee9:0x928e017ae236bbd2!8m2!3d28.581209!4d77.2430972!16s%2Fg%2F11w7q2s3rd";
-const PROFILE_PDF_URL = "/Yash-Dadriwal-Profile.pdf";
+// BASE_URL keeps the link working if the site is hosted under a sub-path
+const PROFILE_PDF_URL = `${import.meta.env.BASE_URL}Yash-Dadriwal-Profile.pdf`;
 const DISCLAIMER_KEY = "yd-disclaimer-accepted";
 
 const NAV_LINKS = [
